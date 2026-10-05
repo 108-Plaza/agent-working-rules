@@ -175,13 +175,13 @@ which asking again does not help; it only fills the log with requests that achie
 ## 6. The standard task order — no skipped steps, no reordering
 
 ```
- 1 read the project context            8 commit only this task's files
- 2 check state (branch · leftovers · CI)  9 push + open a draft PR: what/why + how to prove it
- 3 update the context file            10 only then let CI confirm
- 4 branch from the latest main        11 merge when the conditions are met
- 5 change only what is in scope        12 close the context, record the outcome
- 6 prove it green locally before push 13 delete the merged branch
- 7 fix whatever proving found         14 report + propose follow-up work
+ 1 read the project context                8 commit only this task's files
+ 2 check state (branch · leftovers · CI)   9 push + open a draft PR: what/why + how to prove it
+ 3 update the context file                10 only then let CI confirm
+ 4 branch from the latest main            11 merge when the conditions are met
+ 5 change only what is in scope           12 close the context, record the outcome
+ 6 prove it green locally before push     13 delete the merged branch
+ 7 fix whatever proving found             14 report + propose follow-up work
 ```
 
 🔴 **Step 6 is the one people skip most** — CI is not a test runner, it is the final confirmation gate ·
@@ -247,7 +247,7 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 
 **Found something missed → open a new ticket and send it back; don't fix it yourself** · never close a round with "looks probably fine".
 
-### Verdict format — a machine reads it; get it wrong and the gate cannot see it
+### The verdict format — a machine reads it; get it wrong and the gate cannot see it
 
 ```
 > reviewer: <reviewer identity>
