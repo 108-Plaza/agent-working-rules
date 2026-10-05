@@ -1,101 +1,101 @@
-# วิธีทำงานกับ AI agent — คู่มือสาธารณะ
+# Working with AI agents — the public guide
 
-คู่มือนี้คือ **"ทำงานกันอย่างไร"** ล้วน ๆ — ใครตัดสิน ใครลงมือ ใครรีวิว ใบสั่งงานต้องมีอะไร
-และอะไรที่ต้องหยุดถามคน
+This guide is **"how we work together"** and nothing else — who decides, who implements, who reviews,
+what a work ticket must contain, and what you must stop and ask a human about.
 
-> **ขอบเขต:** ไม่มีรายละเอียดโครงสร้างพื้นฐาน (ชื่อเครื่อง · ที่อยู่ไอพี · โฮสต์ · พาธของไฟล์ลับ ·
-> ชื่อรีโปภายใน) โดยตั้งใจ — ส่วนนั้นอยู่ในคู่มือภายในซึ่งไม่เผยแพร่
+> **Scope:** it deliberately contains no infrastructure detail (machine names · IP addresses · hosts ·
+> paths to secret files · internal repository names) — that part lives in the internal guide, which is not published.
 >
-> ทุกข้อในนี้เกิดจากความผิดพลาดที่วัดได้จริงในการทำงานประจำวัน ไม่ใช่ทฤษฎี
+> Every item here comes from a mistake that was actually measured in daily work. None of it is theory.
 
 ---
 
-## 1. บทบาท — ใครทำอะไร
+## 1. Roles — who does what
 
-| บทบาท | ทำ | ห้าม |
+| Role | Does | Must not |
 |---|---|---|
-| **เจ้าของงาน** (คน) | ตัดสินกติกาทางธุรกิจ · อนุมัติกรณียกเว้น · เป็นผู้ตัดสินสุดท้าย | — |
-| **ผู้คุมงาน (controller)** | สำรวจ · ออกแบบ · **เขียนใบสั่งงาน** · จ่ายงาน · มอนิเตอร์ · รีวิว | merge งานที่ตัวเองเขียน |
-| **ผู้ลงมือ (implementer)** | รับใบแล้วทำตามใบจนเปิด PR | รีวิวงานตัวเอง · ทำงานนอกใบ |
-| **ผู้รีวิว** | เทียบงานกับเกณฑ์ในใบทีละข้อ · รันคำสั่งพิสูจน์เอง | อนุมัติงานที่ตัวเองเขียน |
+| **Owner** (human) | decides business rules · approves exceptions · is the final arbiter | — |
+| **Controller** | explores · designs · **writes the tickets** · dispatches · monitors · reviews | merge work it wrote itself |
+| **Implementer** | takes a ticket and follows it through to an open PR | review its own work · work outside the ticket |
+| **Reviewer** | checks the work against the ticket's criteria one by one · runs the proving commands itself | approve work it wrote itself |
 
-**หลักที่ทำให้มันไม่พัง:** หนึ่งใบ = หนึ่งผู้ลงมือ · ผู้รีวิวต้องไม่ใช่คนเขียน ·
-ผู้คุมงานหนึ่งคนต่อหนึ่งสายงาน
+**The principles that keep this from breaking:** one ticket = one implementer · the reviewer must not be the author ·
+one controller per work stream.
 
-### ผู้ลงมือเสนอได้ แต่เสนอ*บนใบ* ไม่ใช่ในแชต
+### An implementer may propose — but *on the ticket*, never in chat
 
-แชตเห็นคนเดียวแล้วหาย · ใบคือที่เดียวที่ผู้คุมงานเปิดดู
-- ทำตามใบไม่ได้ ⇒ เปลี่ยนสถานะเป็น "ติดขัด" + เหตุผล แล้วคอมเมนต์ลงใบว่าติดตรงไหน **วัดได้อย่างไร**
-- ใบมีข้อเท็จจริงผิด / เกณฑ์รันไม่ผ่าน ⇒ คอมเมนต์อาการพร้อมหลักฐาน
-- เจองานนอกใบ ⇒ **เปิดใบใหม่** ไม่ใช่เล่าในแชตแล้วแก้เอง
-- **ผู้คุมงานเป็นคนตัดสิน** ผู้ลงมือห้ามเดินตามข้อเสนอของตัวเองก่อนได้คำตอบ
-
----
-
-## 2. เจองาน = เปิดใบ ไม่ใช่ลงมือ
-
-1. เจอบั๊ก/งาน → **ค้นใบซ้ำก่อน** (รวมใบที่ปิดแล้ว)
-2. เปิดใบในที่เดียวกับที่โค้ดจะถูกรวมเข้า
-3. **แล้วหยุด** รายงานว่าเปิดใบอะไร
-
-ข้อยกเว้น: ของที่ตัวเองเพิ่งทำพังในสาขาที่ยังไม่รวม · คำผิดในโค้ดที่กำลังพิมพ์อยู่
-
-🔴 **ใบปิด = เริ่มรีวิว ไม่ใช่จบงาน** — รวมใบที่ตัวเองไม่ได้เปิดและไม่ได้ทำ
+Chat is seen by one person and then disappears · the ticket is the only place the controller looks.
+- Cannot follow the ticket ⇒ move it to "blocked" + a reason, then comment on the ticket saying where you are stuck and **how you measured that**
+- The ticket contains a wrong fact / a criterion that fails when run ⇒ comment with the symptom and the evidence
+- You find work outside the ticket ⇒ **open a new ticket**, don't narrate it in chat and fix it yourself
+- **The controller decides.** An implementer must not act on its own proposal before it gets an answer
 
 ---
 
-## 3. ใบสั่งงานต้องทำงานได้โดยไม่มีบทสนทนา
+## 2. Found work = open a ticket, don't start working
 
-ผู้ลงมืออ่านแต่ตัวใบ ไม่เห็นบทสนทนา ไม่เห็นที่อื่น · ใบต้องมีครบ **10 ท่อน**
+1. Find a bug/piece of work → **search for an existing ticket first** (including closed ones)
+2. Open the ticket in the same place the code will be merged
+3. **Then stop** and report which ticket you opened
 
-| # | ท่อน | ต้องมีอะไร |
+Exceptions: something you just broke yourself on a branch that is not merged · a typo in code you are currently typing.
+
+🔴 **A closed ticket means review starts, not that the work is over** — including tickets you neither opened nor worked on.
+
+---
+
+## 3. A ticket must be workable without the conversation
+
+The implementer reads only the ticket. It cannot see the conversation and cannot see anywhere else. A ticket needs all **10 parts**.
+
+| # | Part | What it must contain |
 |---|---|---|
-| 1 | **อาการ** | สิ่งที่เกิดกับผู้ใช้/ระบบ ไม่ใช่ชื่อฟังก์ชัน |
-| 2 | **หลักฐาน** | `file:line` + รหัสคอมมิตที่ตรวจ + คำสั่งที่รันแล้วได้ผลนั้น + สายลูกโซ่ถึงต้นเหตุ |
-| 3 | **ที่แก้** | ไฟล์และแนวทาง ชี้**จุดต้นเหตุ** ไม่ใช่จุดที่เห็นอาการ |
-| 4 | **เกณฑ์ว่าจบ** | 🔴 เครื่องตัดสินได้ — คำสั่ง + ผลที่ต้องได้ |
-| 5 | **ขอบเขตไฟล์** | 🔴 รายการไฟล์ที่แตะได้ บรรทัดละหนึ่งไฟล์ |
-| 6 | **ห้ามแตะ** | ของที่เปลี่ยนแล้วพังจริง + ห้ามลบ/ข้ามเทสต์ที่มีอยู่ |
-| 7 | **โครงสร้างฟังก์ชัน** | ชื่อชนิด/ฟังก์ชัน · อยู่ไฟล์ไหน · เข้ากับของเดิมตรงไหน (`file:line`) |
-| 8 | **Input / Output** | ชนิดที่รับ · ที่คืน · ความผิดพลาดที่เป็นไปได้และคืนเป็นอะไร |
-| 9 | **Edge cases** | เป็นข้อ ๆ พร้อมพฤติกรรมที่ถูกของแต่ละข้อ |
-| 10 | **Step-by-step** | 5–8 ขั้น ขั้นละหนึ่งคอมมิตที่ทดสอบได้ จบด้วยคำสั่งที่รันแล้วเห็นผล |
+| 1 | **Symptom** | what happens to the user/system, not a function name |
+| 2 | **Evidence** | `file:line` + the commit id you checked + the command that produced that result + the chain to the root cause |
+| 3 | **Fix location** | files and approach, pointing at **the root-cause site**, not where the symptom shows |
+| 4 | **Done criteria** | 🔴 machine-decidable — a command + the result it must produce |
+| 5 | **File scope** | 🔴 the list of files that may be touched, one per line |
+| 6 | **Do not touch** | things that really break when changed + never delete/skip existing tests |
+| 7 | **Function structure** | type/function names · which file · where it fits the existing code (`file:line`) |
+| 8 | **Input / Output** | types accepted · returned · possible errors and what each returns |
+| 9 | **Edge cases** | as a list, with the correct behaviour for each |
+| 10 | **Step-by-step** | 5–8 steps, one testable commit each, ending with a command whose result you can see |
 
-**กฎของท่อน 7–10:**
-- ชื่อที่เสนอ**ต้องอ้างของจริง** — signature ที่เดาผิดแย่กว่าไม่เสนอ เพราะผู้ลงมือเดินตามโดยไม่ถาม
-- นำหน้าด้วย **`[บังคับ]`** (สัญญาที่คนอื่นเห็น: ชื่อฟิลด์ · เส้นทาง HTTP · ชื่อคอลัมน์)
-  หรือ **`[เสนอ]`** (รูปร่างภายใน · เปลี่ยนได้แต่ต้องเขียนเหตุผล)
-- Edge case ทุกข้อต้องมีเทสต์ หรือเขียนกำกับว่า *"ยังไม่มีเทสต์ — ตั้งใจ เพราะ …"*
-- ไม่รู้ให้เขียนว่าไม่รู้ · **ใบหกท่อนที่จริงทุกท่อน ดีกว่าสิบท่อนที่สี่ท่อนเป็นการเดา**
-- ⚠️ **ราคาของกฎนี้:** ใบยาวขึ้น และถ้าเดาโครงสร้างผิดจะพาผู้ลงมือผิดตามไปด้วย
-  ⇒ สองข้อแรกคือสิ่งที่กันราคานั้น ห้ามข้าม
+**Rules for parts 7–10:**
+- Proposed names **must cite real code** — a wrongly guessed signature is worse than none, because the implementer follows it without asking
+- Prefix with **`[required]`** (contracts others can see: field names · HTTP routes · column names)
+  or **`[proposed]`** (internal shape · may change, but the reason must be written down)
+- Every edge case needs a test, or a note saying *"no test yet — deliberate, because …"*
+- If you don't know, write that you don't know · **a six-part ticket that is true throughout beats a ten-part one where four parts are guesses**
+- ⚠️ **What this rule costs:** tickets get longer, and guessing the structure wrong leads the implementer wrong with you
+  ⇒ the first two rules are what keep that cost from happening. Never skip them.
 
-### "รัดกุมชัดเจน" แปลว่าอะไร
+### What "tight and clear" means
 
-| ห้ามเขียน | ต้องเขียนแทน |
+| Never write | Write instead |
 |---|---|
-| "ปรับปรุงให้ดีขึ้น" · "จัดการ error ให้เรียบร้อย" | คำสั่งที่รันแล้วเห็นผลต่าง |
-| "ตามที่คุยกัน" · "เหมือนที่อื่น" | เขียนออกมาให้ครบ |
-| อ้างไฟล์ลอย ๆ | `file:line` + รหัสคอมมิต (รหัสเปลี่ยน เลขบรรทัดเลื่อน) |
-| เกณฑ์ที่ต้องใช้คนตัดสิน | เกณฑ์ที่เครื่องตัดสิน |
-| ใบเดียวสองเรื่อง | แยกใบ |
+| "make it better" · "handle errors properly" | a command whose result shows the difference |
+| "as we discussed" · "same as elsewhere" | write it out in full |
+| a vague file reference | `file:line` + the commit id (ids change, line numbers drift) |
+| criteria a human has to judge | criteria a machine judges |
+| one ticket, two topics | split the ticket |
 
-**ก่อนส่งทุกใบ:** ตรวจหลักฐานซ้ำบนสาขาหลักปัจจุบัน (ใบเมื่อวานอ้างรหัสที่ตายแล้ว) ·
-ใบที่แยกออกไปแล้ว ใบแม่ไม่แคบลงเอง ต้องตัดเกณฑ์ที่ย้ายออกด้วยมือ ·
-เช็กว่าชนกับ PR ที่เปิดค้างไหม
+**Before sending every ticket:** re-check the evidence against the current main branch (yesterday's ticket cites a dead commit) ·
+a ticket that was split off does not narrow the parent by itself — remove the moved criteria by hand ·
+check whether it collides with an open PR.
 
-### ขอบเขตไฟล์เขียนพลาด = ทั้งสายงานหยุด
+### A bad file-scope block stops the whole work stream
 
-ถ้าระบบคิวเอาบรรทัดพวกนี้ไปจองไฟล์จริง เขียนพลาดบรรทัดเดียวจะกันงานอื่นทั้งหมด
-โดยที่ผู้ลงมือเห็นแค่ "ไม่มีงาน"
+If the queue system takes these lines and really reserves the files, one bad line blocks all other work
+while implementers see only "no work available".
 
-| เขียนแบบนี้ | ผล |
+| Written like this | Result |
 |---|---|
-| ชื่อไฟล์กลางประโยค · มีสัญลักษณ์นำหน้า | อ่านไม่เจอ ⇒ จองทั้งโปรเจกต์ |
-| หลายไฟล์ในบรรทัดเดียว | เจอแค่ตัวแรก |
-| ชื่อไดเรกทอรีที่มีของอยู่แล้ว | จองทั้งซับทรี กันทุกใบใต้นั้น |
+| a file name mid-sentence · with a bullet in front | not found ⇒ reserves the whole project |
+| several files on one line | only the first is found |
+| a directory name that already has content | reserves the whole subtree, blocking every ticket under it |
 
-**รูปที่ถูก** — บล็อกโค้ด บรรทัดละหนึ่งไฟล์ ขึ้นต้นบรรทัด ไม่มีคำอธิบายต่อท้าย:
+**The correct form** — a code block, one file per line, starting at the beginning of the line, with no trailing description:
 
 ```
 src/a.rs
@@ -104,330 +104,331 @@ tests/a_test.rs
 
 ---
 
-## 4. ออกแบบก่อนเขียน — class diagram มาก่อนโค้ดเสมอ
+## 4. Design before code — the class diagram always comes first
 
-🔴 **ห้ามปล่อยใบที่เขียนโค้ด จนกว่าส่วนที่ใบจะแตะมีไดอะแกรมที่ผ่านรีวิวแล้ว**
+🔴 **Never release a code-writing ticket until the part it touches has a reviewed diagram.**
 
 ```
-1. class diagram (+ เอกสารสัญญา ถ้าผูกของนอกระบบ)  → รีวิว → รวมเข้าสาขาหลัก
-2. ซอยใบตาม class ในไดอะแกรม — ใบละชุด class ที่ไฟล์ไม่ทับกัน
-3. ใบลูกทั้งหมดพร้อมกัน → เขียนขนาน → รีวิว → รวม
+1. class diagram (+ a contract doc if it binds to something outside)  → review → merge to main
+2. split tickets by the classes in the diagram — one class set per ticket, no overlapping files
+3. every child ticket at once → written in parallel → review → merge
 ```
 
-**ทำไม:** ใบที่ซอยตามอาการวิ่งเข้าไฟล์เดียวกัน เพราะไม่มีใครตัดสินว่าชิ้นส่วนไหนอยู่ไฟล์ไหน
-⇒ ใบหลังต้องรอใบก่อน · ถ้าไดอะแกรมตัดสินรอยต่อไว้แล้ว (ชนิด · ลายเซ็น · ไฟล์)
-ใบคนละ class ไม่ต้องรอกัน และผู้ลงมือที่มองไม่เห็นงานของกันไม่ต้องเดาชื่อเอง
-— *"ห้ามเขียนซ้ำ ให้ค้นก่อน"* ไม่พอ เพราะของที่ยังไม่มีใครเขียน ค้นไม่เจอ
+**Why:** tickets split by symptom run into the same file, because nobody decided which piece lives in which file
+⇒ the later ticket has to wait for the earlier one · if the diagram has already decided the seams (types · signatures · files),
+tickets for different classes do not wait for each other, and implementers who cannot see each other's work do not have to guess names
+— *"don't write it twice, search first"* is not enough, because what nobody has written yet cannot be found by searching.
 
-**ไดอะแกรมต้องมี:** ทุก class ที่ใบจะแตะ พร้อมฟิลด์/เมธอดที่ข้ามใบ · **ไฟล์ที่แต่ละ class อยู่**
-(class สองตัวที่ใบต่างกันจะแตะ ห้ามอยู่ไฟล์เดียวกัน) · ใครสร้าง/ใครเรียก ·
-ทางออกถ้าคนที่ต้องวางยังไม่ลง (ประกาศ stub ตามลายเซ็นในไฟล์ตัวเอง **ห้ามรอเฉย ๆ ห้ามแตะไฟล์ใบอื่น**)
+**The diagram must contain:** every class the ticket will touch, with the fields/methods that cross tickets · **the file each class lives in**
+(two classes that different tickets will touch must not share a file) · who creates and who calls ·
+a fallback if the provider has not landed yet (declare a stub matching the signature in your own file — **never just wait, never touch another ticket's files**).
 
-🔴 **แตะฐานข้อมูล ⇒ ต้องมีหัวข้อ "การย้ายข้อมูล"** ตอบให้ครบ 4 ข้อ:
-(1) แถวที่มีอยู่แล้วเป็นอย่างไรหลังย้าย (2) ต้องเติมข้อมูลย้อนหลังไหม — ต้อง ⇒ คำสั่งที่ใช้
-\+ วิธีนับจำนวนแถวที่โดนก่อนขึ้นระบบ (3) ลำดับการปล่อย และของเก่ายังทำงานกับโครงใหม่ได้ไหม
-(4) ย้อนกลับแล้วอะไรหาย · **ไม่มีหัวข้อนี้ = ไม่ผ่านรีวิว**
+🔴 **Touching the database ⇒ there must be a "data migration" section** answering all four:
+(1) what existing rows look like after the migration (2) is a backfill needed — if yes ⇒ the command used
+\+ how to count the affected rows before release (3) the release order, and whether the old code still works with the new schema
+(4) what a rollback loses · **no such section = the review does not pass**.
 
-**ไฟล์เดียวที่หลายใบต้องแตะ = ไดอะแกรมยังไม่เสร็จ** ⇒ ใบแรกคือซอยไฟล์นั้น (ย้ายโค้ดล้วน)
-ไม่ใช่เพิ่มคนหรือเรียงคิวรอกันทีละใบ
+**One file that many tickets must touch = the diagram is not finished** ⇒ the first ticket splits that file (a pure code move),
+rather than adding people or queueing tickets to wait for each other.
 
-🔴 ผู้ลงมือเห็นว่ารูปร่างในไดอะแกรมใช้ไม่ได้จริง ⇒ **คอมเมนต์ในใบแล้วหยุด ห้ามเปลี่ยนเอง**
-เพราะใบอื่นเขียนตามรูปนั้นอยู่
+🔴 An implementer that finds the diagram's shape unworkable ⇒ **comments on the ticket and stops; it must not change the shape itself**,
+because other tickets are being written against it.
 
-### ไดอะแกรมอย่างเดียวไม่พอ — ใบต้องมีตารางพฤติกรรม + เทสต์แดงที่ผู้เขียนใบเขียนก่อน
+### A diagram alone is not enough — the ticket needs a behaviour table and failing tests the ticket author writes first
 
-| ชั้น | บอกอะไร | กันอะไร |
+| Layer | What it says | What it prevents |
 |---|---|---|
-| **1. class diagram** | เขียนอะไร ไว้ไฟล์ไหน ลายเซ็นอะไร | วางผิดที่ · เดาชื่อ · ชนไฟล์ใบอื่น |
-| **2. ตารางพฤติกรรมในใบ** | "พฤติกรรมเดิมที่ต้องคง" + "กรณี → ผลที่ต้องได้" | เปลี่ยนความหมายเงียบ ๆ ทั้งที่ลายเซ็นถูก |
-| **3. เทสต์แดงที่ผู้เขียนใบเขียนก่อน** | ล็อกข้อ 2 เป็นโค้ด | ผู้ลงมืออ้างว่า "คงพฤติกรรมเดิม" ทั้งที่ไม่ได้คง |
+| **1. class diagram** | what to write, in which file, with which signature | wrong placement · guessed names · colliding with another ticket's files |
+| **2. behaviour table in the ticket** | "existing behaviour that must be kept" + "case → required result" | silently changing the meaning while the signatures are right |
+| **3. failing tests the author writes first** | locks item 2 in as code | an implementer claiming it "kept the existing behaviour" when it did not |
 
-ไดอะแกรมทำให้เขียน**ถูกที่** · ตารางพฤติกรรมกับเทสต์ทำให้เขียน**ถูกความหมาย**
-- ผู้เขียนใบ commit เทสต์ที่แดงไว้ในสาขาของใบก่อนจ่าย · ผู้ลงมือทำให้เขียว เพิ่มเทสต์ได้ แต่ 🔴 **ห้ามแก้/ลบ/ทำให้เทสต์ที่ให้ไว้อ่อนลง**
-- ผู้รีวิวเทียบไฟล์เทสต์กับคอมมิตที่ให้ไว้ — ถูกแตะ = ไม่ผ่าน
-- ยังเขียนเทสต์ไม่ได้เพราะของที่พึ่งยังไม่ลง ⇒ เขียนตอนมันลงแล้ว **ก่อน**จ่ายใบ
-- ราคา: เทสต์ที่เขียนผิดพาผู้ลงมือผิดตาม ⇒ เทสต์ล่วงหน้าต้องผ่านรีวิวพร้อมใบ
+The diagram makes the code land **in the right place** · the behaviour table and the tests make it **mean the right thing**.
+- The ticket author commits the failing tests on the ticket's branch before dispatching · the implementer makes them pass and may add more, but 🔴 **must not edit, delete or weaken the tests it was given**
+- The reviewer compares the test files against the commit that was handed over — touched = does not pass
+- Cannot write the tests yet because a dependency has not landed ⇒ write them once it has, **before** dispatching the ticket
+- The cost: badly written tests lead the implementer astray ⇒ up-front tests must pass review together with the ticket
 
-ตัวอย่างที่เกิดจริง: ใบระบุไฟล์และฟังก์ชันชัด ผู้ลงมือวางโค้ดถูกที่ทุกครั้ง แต่ครั้งหนึ่งเปลี่ยนเงื่อนไข "รหัสถูก"
-เป็น "รหัสถูก **และ** hash เป็นรุ่นใหม่" ⇒ ผู้ใช้ที่ hash รุ่นเก่าเปลี่ยนรหัสไม่ได้ ทั้งที่เทสต์เดิมเขียวหมด
-และรายงานว่าคงพฤติกรรมเดิม · ลายเซ็นถูกทุกตัว ไดอะแกรมจึงกันไม่ได้
+A real example: the ticket named the file and the function clearly, and the implementer placed the code correctly every time — but on one ticket
+it changed the condition "the password is correct" into "the password is correct **and** the hash is the new format" ⇒ users whose hash was the old
+format could no longer change their password, while every existing test stayed green and the report said the original behaviour had been preserved.
+Every signature was right, so the diagram could not catch it.
 
 ---
 
-## 5. ผู้คุมงานจ่าย · ผู้ลงมือไม่ไปหยิบเอง
+## 5. The controller dispatches · implementers do not go and take work
 
-| ใคร | ทำ | ห้าม |
+| Who | Does | Must not |
 |---|---|---|
-| **ผู้คุมงาน** | วนรอบเอง: ดูภาพรวม → เลือกใบที่จ่ายได้ → ระบุตัวผู้รับ → **ส่งข้อความสั่งตรง** → ตามผลจนจบ → ส่งใบถัดไป | ปล่อยคนว่างโดยไม่บอกเหตุผล |
-| **ผู้ลงมือ** | รอคำสั่ง · ได้ใบแล้วรับ**ครั้งเดียว**เพื่อให้ระบบจองไฟล์ให้ · จบแล้วแจ้งกลับ | วนหาใบเอง · หยิบใบที่ไม่ได้ถูกสั่ง |
+| **Controller** | loops itself: look at the whole picture → pick a dispatchable ticket → name the recipient → **send a direct order** → follow it to the end → send the next ticket | leave someone idle without saying why |
+| **Implementer** | waits for an order · on getting a ticket, takes it **once** so the system reserves the files · reports back when done | loop looking for tickets · take a ticket it was not given |
 
-**ทำไม:** ผู้ลงมือมองไม่เห็นว่าทำไมถึงไม่มีงาน — คอขวดมักเป็นใบที่ถือล็อกไฟล์อยู่และต้องมี**คนตัดสิน**
-ซึ่งการวนถามซ้ำไม่ช่วย มีแต่ทำให้บันทึกเต็มไปด้วยคำขอที่ไม่ได้อะไร
+**Why:** the implementer cannot see why there is no work — the bottleneck is usually a ticket holding a file lock that needs **someone to decide**,
+which asking again does not help; it only fills the log with requests that achieve nothing.
 
-- ไม่มีงาน ⇒ **ห้ามยิงซ้ำ** แจ้งผู้คุมงานว่าติดอะไรแล้วรอ
-- ผู้คุมงานไม่อยู่ / ไม่รู้ว่าใครคุม ⇒ แจ้งเจ้าของ ไม่ใช่กลับไปวนเอง
-- **ใบที่ถูกจ่ายให้แล้ว = อนุมัติแล้ว** ลงมือได้ไม่ต้องถามซ้ำ
-- **สายงานบอกแค่ว่าใครคุม/ใครรีวิว ไม่ใช่ตัวกรองว่าใครรับได้** — ผู้ลงมือรับสายไหนก็ได้
-
----
-
-## 6. ลำดับงานมาตรฐาน — ไม่ข้ามขั้น ไม่สลับลำดับ
-
-```
- 1 อ่าน context ของโปรเจกต์        8 commit เฉพาะไฟล์ของงานนี้
- 2 ตรวจสถานะ (สาขา · ของค้าง · CI)  9 push + เปิด PR (ร่าง) สรุป what/why + วิธีพิสูจน์
- 3 อัปเดตไฟล์ context             10 พร้อมแล้วค่อยให้ CI ยืนยัน
- 4 แตกสาขาจากสาขาหลักล่าสุด        11 merge เมื่อครบเงื่อนไข
- 5 แก้เท่าที่อยู่ในขอบเขต          12 ปิด context บันทึกผล
- 6 พิสูจน์บนเครื่องให้เขียวก่อน push 13 ลบสาขาที่รวมแล้ว
- 7 แก้สิ่งที่การพิสูจน์เจอ          14 รายงาน + เสนองานต่อเนื่อง
-```
-
-🔴 **ขั้น 6 คือขั้นที่คนข้ามบ่อยที่สุด** — CI ไม่ใช่ตัวรันเทสต์ มันคือด่านยืนยันรอบสุดท้าย ·
-push เดาแก้ผ่าน CI = ลูปที่ไม่จบและแย่งทรัพยากรคนอื่น
-
-**ขั้น 1–10 และ 12–14 ทำต่อเนื่องเองได้ ไม่ต้องขออนุมัติทีละขั้น** รายงานเฉพาะหมุดหมาย
-
-🔴 **ห้ามใส่คำสั่งข้าม CI ในข้อความคอมมิต** (อยู่ในเนื้อก็นับ) — ระบบจะระงับทั้ง workflow
-**ก่อนสร้างงาน** ⇒ ด่านที่บังคับไว้ไม่เคยได้รายงานผล ⇒ PR ถูกบล็อกถาวรโดยไม่มีด่านไหนแดงให้ดู
-· การประหยัด CI เป็นงานของ workflow ไม่ใช่ของข้อความคอมมิต
+- No work ⇒ **never re-send**; tell the controller what is blocking and wait
+- The controller is absent / you don't know who controls ⇒ tell the owner, don't go back to looping
+- **A ticket that was dispatched to you is already approved** — start without asking again
+- **A work stream says who controls and who reviews; it is not a filter on who may take work** — an implementer can take any stream
 
 ---
 
-## 7. ต้องหยุดถามคนเมื่อไหร่
-
-- **ขอบเขตบานออก** — งานใหญ่กว่าที่รับ · ต้องแก้หลายส่วนนอกขอบเขต · ไม่แน่ใจว่าไฟล์เกี่ยวจริงไหม
-- **สัญญาไม่ตรงกัน** — หน้าบ้าน/หลังบ้านไม่ตรง · ต้องเปลี่ยนสัญญา API
-- **ความเสี่ยงต่อข้อมูล** — ย้ายข้อมูล · เปลี่ยนโครง · เติมข้อมูลย้อนหลัง · ลบ · คำสั่งที่ย้อนไม่ได้
-- **กติกาทางธุรกิจ** — หลายแนวทางให้ผลต่างกัน · ความต้องการไม่ชัด
-- **ตัดสินไม่ได้ว่าจะเก็บฝั่งไหน** ตอนแก้ conflict
-- **ทรัพยากรที่ใช้ร่วมกัน** — ฐานข้อมูล/สภาพแวดล้อมที่คนอื่นใช้อยู่ด้วย
-- **ขึ้นระบบจริง**
-
-### ถามให้เป็น — คำถามเปล่า ๆ คือการโยนงานคิดกลับไป
-
-คนตัดสินไม่ได้อยู่กับโค้ด คนที่อยู่คือเรา · ทุกคำถามต้องมีสี่อย่าง:
+## 6. The standard task order — no skipped steps, no reordering
 
 ```
-ต้นตอ:       <file:line + สายลูกโซ่ อาการ ← A ← B ← ต้นเหตุ>
-วัดแล้ว:     <ตัวเลข/ผลรัน/เนื้อไฟล์ — ไม่ใช่ความเห็น>
-ทางเลือก:    ก. <ทาง> — ราคา / ย้อนได้ไหม / กระทบใคร
-             ข. <ทาง> — ราคา / ย้อนได้ไหม / กระทบใคร
-ผมเสนอ:      <ก. หรือ ข.> เพราะ <เหตุผล>
-ถ้าไม่ตอบ:   <จะเดินทางไหนไปก่อน หรืองานหยุดตรงไหน ใครถูกบล็อก>
+ 1 read the project context            8 commit only this task's files
+ 2 check state (branch · leftovers · CI)  9 push + open a draft PR: what/why + how to prove it
+ 3 update the context file            10 only then let CI confirm
+ 4 branch from the latest main        11 merge when the conditions are met
+ 5 change only what is in scope        12 close the context, record the outcome
+ 6 prove it green locally before push 13 delete the merged branch
+ 7 fix whatever proving found         14 report + propose follow-up work
 ```
 
-- *"ไม่แน่ใจว่า X ไหม"* ที่ตรวจเองได้ใน 2 นาที **ห้ามถาม**
-- **ห้ามถามซ้ำสิ่งที่เคยตอบแล้ว**
-- วิจัยเพื่อให้คำถาม*ดีขึ้น* ไม่ใช่เพื่อให้*ไม่ต้องถาม*
+🔴 **Step 6 is the one people skip most** — CI is not a test runner, it is the final confirmation gate ·
+pushing guess-fixes through CI is a loop that never ends and takes resources from everyone else.
+
+**Steps 1–10 and 12–14 run continuously without per-step approval.** Report milestones only.
+
+🔴 **Never put a skip-CI instruction in a commit message** (in the body counts too) — the system suppresses the whole workflow
+**before creating any jobs** ⇒ the required gates never report ⇒ the PR is blocked permanently with no red gate to look at.
+· Saving CI time is the workflow's job, not the commit message's.
 
 ---
 
-## 8. รีวิว
+## 7. When you must stop and ask a human
 
-"ผู้ลงมือปิดใบแล้ว" และ "CI เขียว" **ไม่ใช่หลักฐานว่างานมีคุณภาพ**
+- **Scope grew** — the work is bigger than what you took on · you must change several things outside scope · you are unsure whether a file is really related
+- **Contracts disagree** — front end and back end do not match · the API contract must change
+- **Risk to data** — migrations · schema changes · backfills · deletions · anything that cannot be undone
+- **Business rules** — several approaches give different results · the requirement is unclear
+- **You cannot decide which side to keep** when resolving a conflict
+- **Shared resources** — a database or environment other people are using
+- **Going to production**
 
-**ขั้นตอน:** อ่านใบก่อนอ่าน diff (เกณฑ์คือใบ ไม่ใช่ความชอบ) → ไล่เกณฑ์ทีละข้อพร้อม `file:line`
-→ **รันคำสั่งพิสูจน์เอง** → ออกคำตัดสิน
+### Asking well — a bare question throws the thinking back
 
-| ตรวจ | ตกแล้วเกิดอะไร |
+The decider is not in the code; you are. Every question needs four things:
+
+```
+Root cause:    <file:line + the chain: symptom ← A ← B ← root cause>
+Measured:      <numbers / run output / file contents — not opinion>
+Options:       A. <path> — cost / reversible? / who is affected
+               B. <path> — cost / reversible? / who is affected
+I propose:     <A or B> because <reason>
+If no answer:  <which path I take meanwhile, or where the work stops and who is blocked>
+```
+
+- *"I'm not sure whether X"* that you could check yourself in 2 minutes **must not be asked**
+- **Never re-ask something already answered**
+- Research to make the question *better*, not to avoid asking
+
+---
+
+## 8. Review
+
+"The implementer closed the ticket" and "CI is green" **are not evidence of quality.**
+
+**Steps:** read the ticket before the diff (the criteria are the ticket, not your taste) → walk the criteria one by one with `file:line`
+→ **run the proving commands yourself** → issue the verdict.
+
+| Check | What happens if it slips |
 |---|---|
-| ครบ**เกณฑ์ว่าจบ**ทุกข้อ | ทำครึ่งเดียวแล้วปิด ⇒ ของค้างที่ไม่มีใบ |
-| **เทสต์จับการถอยได้จริง** — ย้อนโค้ดที่แก้แล้วเทสต์ต้องแดง | เทสต์ที่แดงไม่ได้ = ไม่มีเทสต์ |
-| มีเทสต์ถูกข้าม/ลบไหม | ข้าม = ผ่าน ปิดบังบักจริง |
-| แตะฐานข้อมูล ⇒ มีหัวข้อการย้ายข้อมูลครบ 4 ข้อ | แถวเดิมพังตอนขึ้นระบบโดยไม่มีใครคิดถึง |
-| แตะไฟล์นอก**ขอบเขตไฟล์**ไหม | ถอยงานสายอื่นเงียบ ๆ |
-| ต่อสายจริง หรือแค่เขียนชิ้นส่วนไว้ | ทดสอบที่รอยต่อ ไม่ใช่แค่ที่ชิ้นส่วน |
-| ฐานของ PR ตามสาขาหลักทันไหม | เขียวบนฐานเก่า รวมแล้วสาขาหลักแดง |
-| แก้ที่**ต้นเหตุ**ไหม | แก้ปลายทางโดยไม่มีใบต้นเหตุ = ไม่ผ่าน |
+| every **done criterion** met | half done then closed ⇒ leftover work with no ticket |
+| **the tests really catch regressions** — revert the fix and they must go red | a test that cannot go red is not a test |
+| was any test skipped or deleted? | skip = pass, which hides real bugs |
+| touches the database ⇒ the data-migration section is complete, all four items | existing rows break at release with nobody having thought about them |
+| does it touch files outside the **file scope**? | silently regresses another stream's work |
+| actually wired up, or just the pieces written? | test at the seam, not only at the pieces |
+| is the PR's base up to date with main? | green on an old base, merged, then main goes red |
+| was it fixed at the **root cause**? | a symptom-site fix with no root-cause ticket does not pass |
 
-🔴 PR ที่อ้างว่า *"กวาดครบทุกที่"* มักแก้ที่ที่โปรแกรมเมอร์อ่าน แล้วลืมที่ที่คนหน้างานอ่าน
-(คำสั่งใน README ที่คนก๊อปไปรัน) ⇒ **รันคำสั่งกวาดเองซ้ำเสมอ**
+🔴 A PR claiming it *"swept every place"* usually fixes the places programmers read and forgets the places the people on the ground read
+(the commands in the README that people copy and run) ⇒ **always re-run the sweep command yourself.**
 
-**เจอของตก → เปิดใบใหม่ส่งกลับ ไม่แก้เอง** · ห้ามปิดรอบด้วย "ดูแล้วน่าจะโอเค"
+**Found something missed → open a new ticket and send it back; don't fix it yourself** · never close a round with "looks probably fine".
 
-### รูปแบบคำตัดสิน — เครื่องอ่าน เขียนพลาด = ด่านไม่เห็น
+### Verdict format — a machine reads it; get it wrong and the gate cannot see it
 
 ```
-> reviewer: <ตัวตนผู้รีวิว>
-> head: <รหัสคอมมิตที่รีวิว>
+> reviewer: <reviewer identity>
+> head: <commit id reviewed>
 
 Verdict: PASS | PASS+follow-up | FAIL
-เทียบเกณฑ์: n/m ผ่าน
-  1. <เกณฑ์> — ผ่าน (หลักฐาน: path:line)
-  2. <เกณฑ์> — ไม่ผ่าน (ที่ผิด: path:line, ที่คาด: …)
-พิสูจน์เอง: <คำสั่ง> → <ผล>
-นอกขอบเขตที่เจอ: <ไม่มี | ใบที่เพิ่งเปิด>
-ต้องแก้ก่อน merge: <รายการ หรือ "ไม่มี">
+Acceptance criteria: n/m met
+  1. <criterion> — met (evidence: path:line)
+  2. <criterion> — not met (wrong at: path:line, expected: …)
+Proved myself: <command> → <result>
+Out of scope found: <none | the ticket just opened>
+Must fix before merge: <list, or "none">
 ```
 
-- บรรทัดคำตัดสิน**ต้องขึ้นต้นด้วย `Verdict:`** และมี `PASS`/`FAIL` ในบรรทัดเดียวกัน ·
-  เขียนเป็นภาษาอื่นหรือครอบทั้งบรรทัดด้วยตัวหนา = ด่านอ่านไม่ออก
-- **บรรทัดที่ไม่ใช่คำตัดสิน ห้ามขึ้นต้นด้วยคำว่า `Verdict` หรือ `Review`**
-- 🔴 **push ใหม่ = ต้องมีคำตัดสินใหม่** เพราะคำตัดสินผูกกับรหัสคอมมิต
-- ด่านแดงเพราะข้อความ ⇒ **แก้ที่คอมเมนต์ ไม่ใช่แก้โค้ด** · คอมเมนต์ของคนอื่นห้ามแก้เอง
+- The verdict line **must start with `Verdict:`** and contain `PASS`/`FAIL` on the same line ·
+  writing it in another language, or wrapping the whole line in bold, makes it unreadable to the gate
+- **Lines that are not the verdict must not start with the word `Verdict` or `Review`**
+- 🔴 **A new push means a new verdict is required**, because the verdict is bound to a commit id
+- A gate that is red because of wording ⇒ **fix the comment, not the code** · never edit someone else's comment yourself
 
 ---
 
-## 9. เงื่อนไข merge
+## 9. Merge conditions
 
-**ครบสามข้อ = merge ได้ ไม่ต้องขออนุมัติ:**
-1. คำตัดสิน `PASS` จาก**คนที่ไม่ได้เขียน PR** โพสต์ไว้แล้ว และผูกกับรหัสคอมมิตปัจจุบัน
-2. ด่านบังคับเขียวครบที่รหัสคอมมิตปัจจุบัน — ด่าน**ไม่บังคับ** (advisory) ที่ยังรอคิวหรือแดงอยู่ **ไม่กั้น merge**
-   แต่ต้องพิสูจน์ก่อนว่าตัวที่ค้าง/แดงไม่อยู่ในรายการด่านบังคับของสาขาหลัก
-3. ฐานของ PR ตามสาขาหลักทันแล้ว
+**All three met = merge, no approval needed:**
+1. A `PASS` verdict from **someone who did not write the PR** has been posted and is bound to the current commit id
+2. Required gates are green at the current commit id — **non-required (advisory) gates** that are still queued or red **do not block the merge**,
+   but you must first prove that the queued/red ones are not in the main branch's required list
+3. The PR's base is up to date with main
 
-🔴 **ยังต้องหยุดถาม:** คำตัดสิน `FAIL` หรือ `PASS` ที่มีรายการ "ต้องแก้ก่อน merge" ·
-ย้ายข้อมูล/เปลี่ยนโครง/ลบ · ของที่ห้ามแตะ · ขึ้นระบบจริง · กติกาธุรกิจที่ยังไม่ตัดสิน
+🔴 **Still stop and ask:** a `FAIL` verdict, or a `PASS` carrying a "must fix before merge" list ·
+migrations/schema changes/deletions · anything on the do-not-touch list · going to production · business rules not yet decided.
 
-⚠️ **ป้าย "รีวิวผ่าน" ไม่ใช่ปุ่ม merge** — ติดแล้วต้องกด merge เองต่อ ไม่งั้น PR ค้าง
+⚠️ **A "review passed" label is not a merge button** — after applying it you still have to merge, or the PR just sits there.
 
 ---
 
-## 10. หลักการเขียนที่ใช้กับทุกอย่าง
+## 10. Writing principles that apply to everything
 
-### 🌱 แก้ที่ต้นเหตุ ไม่ใช่ที่ปลายทาง
+### 🌱 Fix the root cause, not the symptom site
 
-**ปลายทาง** = จุดที่*เห็น*อาการ · **ต้นเหตุ** = จุดที่ของผิดถูก*สร้าง*
+**Symptom site** = where the symptom is *seen* · **root cause** = where the wrong thing is *created*.
 
-**ก่อนแก้ ตอบสามข้อ:**
-1. ของผิดถูกสร้างที่ไหน — ไล่ถึงจุดที่*เขียน/ส่ง/ตัดสิน*ค่าผิด ไม่ใช่จุดที่*อ่าน/แสดง/ตรวจ*
-2. แก้ตรงนี้แล้วอาการเกิดใหม่ได้ไหม (ที่อื่น · ข้อมูลแถวใหม่ · PR ถัดไป) — ได้ = ยังเป็นปลายทาง
-3. ต้นเหตุนี้มีปลายทางอื่นอีกไหม
+**Before fixing, answer three questions:**
+1. Where is the wrong thing created — trace to where the wrong value is *written/sent/decided*, not where it is *read/displayed/checked*
+2. After fixing here, can the symptom come back? (elsewhere · new rows of data · the next PR) — yes = still the symptom site
+3. Does this root cause have other symptom sites?
 
-**สัญญาณว่ากำลังแก้ปลายทาง:** แก้เรื่องเดิมครั้งที่สอง · แก้ทีละรายการ ·
-ให้**ผู้อ่าน**ทนค่าผิด (ค่าปริยาย · กรองทิ้ง) แทนแก้**ผู้เขียน** · ดันเพดาน ·
-เพิ่ม retry/หน่วงเวลา · ข้ามเทสต์ · ล้างข้อมูลผิดด้วยมือขณะตัวสร้างยังทำงาน
+**Signs you are fixing the symptom site:** fixing the same thing a second time · fixing one item at a time ·
+making the **reader** tolerate the wrong value (defaults · filtering it out) instead of fixing the **writer** · raising a ceiling ·
+adding retries/delays · skipping tests · cleaning bad data by hand while the thing creating it still runs.
 
-**ต้นเหตุอยู่นอกมือ** ⇒ แก้ชั่วคราวได้ถ้าครบสามข้อ: (1) เขียนในคอมมิตว่าเป็นการแก้ชั่วคราว
-\+ ต้นเหตุคืออะไร (2) **เปิดใบที่ต้นเหตุก่อน merge** ลิงก์กันสองทาง
-(3) ใบของอาการห้ามปิดว่า "แก้แล้ว"
+**The root cause is out of your hands** ⇒ a temporary fix is allowed if all three hold: (1) the commit says it is a temporary fix
+\+ what the root cause is (2) **open a ticket at the root cause before merging**, linked both ways
+(3) the symptom's ticket must not be closed as "fixed".
 
-### 📌 เขียนข้อเท็จจริงเป็นประธาน — อ้างใบเป็น*ที่มา* ไม่ใช่เป็น*สถานะ*
+### 📌 Make the fact the subject — cite a ticket as the *source*, not as the *status*
 
-`"ใบ #N เปิดอยู่"` คือระเบิดเวลา จริงเฉพาะวันที่พิมพ์ ·
-`"X ยังไม่มีคำตอบ (เคยมีความพยายามที่ #N)"` ไม่มีวันหมดอายุ
+`"ticket #N is open"` is a time bomb: true only on the day it was typed ·
+`"X has no answer yet (there was an attempt at #N)"` never expires.
 
-| ห้ามเขียน | เขียนแทน |
+| Never write | Write instead |
 |---|---|
-| "ใบ #N เปิดไว้เพื่อแก้ข้อนี้" | "X ยังไม่มีคำตอบ · เคยมีความพยายามที่ #N" |
-| "รอ #N" เป็นเหตุผลบล็อก | เหตุผลที่ตรวจซ้ำได้ + คำสั่งที่รันแล้วรู้ว่าปลดได้หรือยัง |
-| เลขใบลอย ๆ | เลขใบ + ครึ่งบรรทัดว่ามันขอให้ทำอะไร |
+| "ticket #N is open to fix this" | "X has no answer yet · there was an attempt at #N" |
+| "waiting on #N" as a blocking reason | a reason that can be re-checked + a command that tells you whether it can be unblocked yet |
+| a bare ticket number | the ticket number + half a line on what it asks for |
 
-🔴 **ประโยคปฏิเสธต้องแปะขอบเขต** — *"ยังไม่มีใครวัด"* · *"ไม่พบเทสต์"* จริงเฉพาะเท่าที่กวาด
-⇒ เขียนว่ากวาดอะไร กี่รายการ ที่รหัสคอมมิตไหน · **"ไม่เห็น" ต่างจาก "ไม่มี"**
+🔴 **Negative statements must carry their scope** — *"nobody has measured it"* · *"no test found"* are true only as far as you swept
+⇒ write what you swept, how many items, at which commit id · **"not seen" is different from "does not exist"**.
 
-**ก่อนกดส่งทุกครั้ง ถามหนึ่งข้อ:** *ประโยคนี้จะยังจริงไหมถ้าใบที่อ้างถูกปิดพรุ่งนี้*
+**Before every send, ask one question:** *will this sentence still be true if the ticket it cites is closed tomorrow?*
 
-### 🧾 อ้างถึงคนอื่น = แปะหลักฐานที่รันซ้ำได้ในประโยคเดียวกัน
+### 🧾 Referring to someone else = attach re-runnable evidence in the same sentence
 
-**ไม่มีหลักฐาน = อย่าเอ่ยชื่อ** เขียนเป็นกลไกแทน ("ผู้เปิดใบสองคนที่ไม่รู้จักกัน") ·
-ถูกทักว่าระบุผิด ⇒ **แก้ที่ต้นทาง** (คอมเมนต์ที่ส่งไป) ไม่ใช่แค่ยอมรับในบทสนทนา
+**No evidence = do not name anyone**; describe the mechanism instead ("two ticket openers who did not know about each other") ·
+told that you identified someone wrongly ⇒ **fix it at the source** (the comment you sent), not just acknowledge it in the conversation.
 
-### ✍️ ทุกคอมเมนต์บรรทัดแรกต้องบอกว่าใครเขียน
+### ✍️ The first line of every comment says who wrote it
 
-เมื่อหลาย agent โพสต์ผ่านบัญชีเดียวกัน หน้าเว็บแยกไม่ออกว่าใครพูด
+When several agents post through the same account, the web page cannot tell who is speaking.
 
-| ชนิด | บรรทัดแรก |
+| Kind | First line |
 |---|---|
-| คอมเมนต์ทั่วไป | `> <ชนิด>/<รหัสเซสชัน> — <คอมเมนต์นี้คืออะไร>` |
-| คำตัดสิน | `> reviewer: …` + `> head: …` |
-| เนื้อ PR | `> worker: …` |
-| ใบที่เปิดใหม่ | `> dispatched-by: …` |
+| General comment | `> <kind>/<session-id> — <what this comment is>` |
+| Verdict | `> reviewer: …` + `> head: …` |
+| PR body | `> worker: …` |
+| A newly opened ticket | `> dispatched-by: …` |
 
-ตัวตนกลางย่อหน้าไม่นับ · ห้ามใช้ชื่อชนิดเปล่า ต้องมีรหัสเซสชันเสมอ
+An identity mid-paragraph does not count · never use a bare kind name; always include the session id.
 
 ---
 
-## 11. งานสองชิ้นขัดกัน
+## 11. When two pieces of work conflict
 
-| แบบ | หน้าตา | ต้นตอที่ต้องถาม |
+| Kind | What it looks like | The root-cause question to ask |
 |---|---|---|
-| ชนไฟล์ | สองใบจองไฟล์เดียวกัน | ทำไมไฟล์นั้นเป็นจุดนัดพบของทุกงาน |
-| สั่งตรงข้ามกัน | ใบ A ให้เขียนค่า ใบ B ห้ามเขียน บนฟิลด์เดียวกัน | ใครเป็นเจ้าของกติกาของฟิลด์ เขียนไว้ที่ไหน |
-| ซ้ำโดยไม่รู้ตัว | หลายใบขอสิ่งเดียวกันคนละคำ | ใบถูกซอยตามอาการ ไม่ใช่ตามสิ่งที่ต้องเปลี่ยน |
+| File collision | two tickets reserve the same file | why is that file the meeting point of all work |
+| Opposite orders | ticket A says write the value, ticket B says don't, on the same field | who owns that field's rules, and where are they written |
+| Unknowing duplicates | several tickets ask for the same thing in different words | tickets were split by symptom, not by what has to change |
 
-🔴 "รอใบ #N ก่อน" คือการแก้ชั่วคราว — ใช้ได้ แต่ต้องมาคู่กับข้อเสนอที่ต้นตอเสมอ ·
-**ไฟล์เดียวโผล่เกินครึ่งของใบที่รออยู่ = ปัญหาสถาปัตยกรรม เสนอซอยไฟล์ เพิ่มคนไม่ช่วย**
-
----
-
-## 12. จบงานทุกชิ้น ต้องวิเคราะห์งานต่อเนื่องแล้วเสนอ
-
-ก่อนรายงานว่าเสร็จ ไล่หกข้อ:
-1. **อีกครึ่งของงาน** — หลังบ้านเสร็จแต่หน้าบ้านยังไม่ใช้ หรือกลับกัน
-2. **ถึงผู้ใช้หรือยัง** — รวมเข้าสาขาหลัก ≠ ถึงมือคนใช้
-3. **ของค้างบนเครื่อง/ข้อมูล** — สวิตช์ชั่วคราว · สาขาค้าง · ฐานทดสอบ
-4. **กันซ้ำ** — เทสต์หรือด่านที่จับได้ถ้าเกิดอีก
-5. **เอกสารที่ต้องตาม**
-6. **ใบที่ต้องขยับ** — ปิด/เปิด/แยก
-
-**ท้ายรายงานทุกครั้งมีหัวข้อ "งานต่อเนื่องที่เสนอ"** — ไม่มีต้องเขียนว่า *"ไม่มี — ตรวจแล้ว: …"*
-ห้ามละ · กฎนี้สั่งให้*เสนอ* ไม่ใช่ใบอนุญาตทำเกินคำสั่ง
-
-🔴 ห้ามปิดใบว่าเสร็จโดยไม่มีคอมมิตที่ทำงานนั้น — ไม่ทำแล้ว/ซ้ำ ให้ปิดพร้อมเหตุผล ·
-ใบหลายฝั่งห้ามปิดจนทุกฝั่งมีคอมมิต
+🔴 "Wait for ticket #N first" is a temporary fix — it is allowed, but it must always come with a proposal at the root cause ·
+**one file appearing in more than half of the waiting tickets = an architecture problem; propose splitting the file. Adding people does not help.**
 
 ---
 
-## 13. ข้อควรระวังที่เจอซ้ำ
+## 12. Every finished task must analyse and propose follow-up work
 
-### endpoint ที่ถูกเรียกเป็นรอบ ต้องส่งเฉพาะที่เปลี่ยน
+Before reporting done, go through six items:
+1. **The other half of the work** — the back end is done but the front end does not use it yet, or the reverse
+2. **Has it reached users?** — merged to main ≠ in people's hands
+3. **Leftovers on machines/data** — temporary switches · stale branches · test databases
+4. **Preventing recurrence** — a test or a gate that would catch it next time
+5. **Docs that must follow**
+6. **Tickets that must move** — close/open/split
 
-**ห้ามประกอบคำตอบทั้งก้อนทุกคำขอ** ต้องมี: เวอร์ชันที่เพิ่มทางเดียว · ผู้เรียกพก cursor มาเอง ·
-ไม่เปลี่ยน ⇒ ตอบสั้นต้นทุนคงที่ · เปลี่ยน ⇒ ส่งเฉพาะส่วนต่าง · และฝั่งผู้เรียกวาดเฉพาะจุดที่เปลี่ยน
+**Every report ends with a "proposed follow-up work" section** — if there is none you must write *"none — checked: …"*.
+Never omit it. This rule tells you to *propose*; it is not a licence to do more than you were asked.
 
-**สัญญาณละเมิด:** อ่านทั้งตารางแล้วกรองทิ้งเกินครึ่ง · นับด้วยการไล่ประวัติแทนคำสั่งนับ ·
-ตั้งรอบรีเฟรชโดยไม่ดูว่าข้อมูลเปลี่ยนบ่อยแค่ไหน · แก้ด้วยการเพิ่มเครื่องแทนลดงานต่อคำขอ
+🔴 Never close a ticket as done without the commit that did the work — not doing it / a duplicate ⇒ close it with the reason ·
+a multi-sided ticket must not be closed until every side has a commit.
 
-### หลายสายทำงานพร้อมกัน — จองใบไม่พอ ต้องกันตอน merge
+---
 
-ใบคนละใบแตะไฟล์เดียวกันได้ ⇒
-- **ตามสาขาหลักให้ทันทั้งตอนเปิด PR และก่อน merge** ไม่ใช่ครั้งเดียว
-- **แก้ conflict ห้ามเอาข้างเดียวทั้งก้อน** — อ่านก่อนว่าอีกฝั่งแก้อะไร**ทำไม**
-- **ตามสาขาหลักแล้วผลรันเดิมใช้ไม่ได้** — ต้องพิสูจน์สองอย่าง: เทสต์ของตัวเองยังแดงได้บนฐานใหม่
-  **และ**เทสต์ของฝั่งที่ถูกทับยังเขียว
+## 13. Traps that keep coming back
 
-### ทุกแอปต้องบอกได้ว่าตัวเองคือเวอร์ชันอะไร
+### An endpoint called on a cycle must send only what changed
 
-ลูกค้าโทรมาต้องตอบได้ว่าใช้บิลด์ไหน
-- รายงาน 4 ฟิลด์เสมอ: เวอร์ชัน · รหัสคอมมิต · เวลาที่บิลด์ · ช่องทางปล่อย
-- 🔴 **หน้าบ้านรายงานเวอร์ชันของหลังบ้านที่คุยอยู่ด้วย** ไม่งั้นคำว่า "พัง" วางไม่ถูกว่าฝั่งไหน
-- 🔴 **เวอร์ชันที่ไม่มีใครอ่าน = ผิดตลอดโดยไม่มีใครรู้** ⇒ ต้องปล่อยออกมาตอนรัน
-  และ CI ต้องล้มถ้าไม่ตรงกับที่ประกาศไว้
-- ยืนยันการปล่อยด้วย**ตัวตนของบิลด์** ไม่ใช่ HTTP 200 (200 มาจากของเก่าก็ได้)
-- **ห้ามแก้เลขเวอร์ชันใน PR ฟีเจอร์** — ขยับในคอมมิตปล่อยเท่านั้น
+**Never assemble the whole response on every request.** It must have: a version that only increases · the caller carrying its own cursor ·
+unchanged ⇒ a short answer at constant cost · changed ⇒ only the difference · and the caller redraws only what changed.
 
-### ของที่สร้างตอนทำใบ ต้องเก็บเองก่อนรายงานว่าจบ
+**Signs of a violation:** reading a whole table and filtering out more than half · counting by walking history instead of using a count command ·
+setting a refresh interval without looking at how often the data changes · fixing it by adding machines instead of doing less work per request.
 
-ผู้ลงมือหลายตัวบนเครื่องเดียวกันสร้างผลบิลด์ ฐานข้อมูลเทสต์ และคอนเทนเนอร์ แล้วไม่มีใครเก็บ
-⇒ ดิสก์เต็มเร็วกว่าที่ใครคาด และเครื่องช้าลงเพราะของที่ไม่มีใครใช้ยังรันอยู่
-หลัก: **ของที่มีข้อมูลของใบเดียว = ใช้แล้วทิ้ง · ของที่สร้างใหม่แพงและไม่มีข้อมูลของใคร = ใช้ซ้ำ**
+### Several streams at once — reserving a ticket is not enough, guard at merge time
 
-| ของ | ทำอย่างไร |
+Different tickets can touch the same file ⇒
+- **Catch up with main both when opening the PR and before merging**, not once
+- **Never resolve a conflict by taking one side wholesale** — read what the other side changed and **why** first
+- **After catching up with main, your earlier run results are void** — prove two things: your own tests can still go red on the new base
+  **and** the tests of the side you merged over are still green
+
+### Every app must be able to say which version it is
+
+When a customer calls, you must be able to say which build they are on.
+- Always report four fields: version · commit id · build time · release channel
+- 🔴 **The front end reports the version of the back end it is talking to**, otherwise "it's broken" cannot be placed on a side
+- 🔴 **A version nobody reads is always wrong without anyone knowing** ⇒ it must be emitted at run time,
+  and CI must fail if it does not match what was declared
+- Confirm a release by **the build's identity**, not by HTTP 200 (a 200 can come from the old one)
+- **Never change the version number in a feature PR** — move it only in the release commit
+
+### Clean up what you created for a ticket before reporting it done
+
+Several implementers on one machine create build outputs, test databases and containers, and nobody cleans them up
+⇒ the disk fills faster than anyone expects, and the machine slows down because things nobody uses are still running.
+The principle: **anything holding one ticket's data = use once and discard · anything expensive to recreate that holds nobody's data = reuse.**
+
+| Thing | What to do |
 |---|---|
-| คอนเทนเนอร์ฐานข้อมูล/แคชที่เปิดไว้เทสต์ใบเดียว | รันแบบลบตัวเองเมื่อหยุด (`docker run --rm`) + ติด label บอกเจ้าของและใบ · ห้ามตั้งให้รีสตาร์ตเอง |
-| เซิร์ฟเวอร์ฐานข้อมูลสำหรับเทสต์ | ใช้ตัวประจำโปรเจกต์ที่มีอยู่ · เทสต์สร้างและลบฐานย่อยของตัวเอง |
-| โฟลเดอร์ผลบิลด์ของแต่ละ worktree | ลบไปพร้อม worktree เมื่อ merge หรือทิ้งใบ · 🔴 **ห้ามให้สอง worktree ของโปรเจกต์เดียวกันใช้โฟลเดอร์ผลบิลด์ร่วม** — เครื่องมือบิลด์บางตัว (เช่น cargo) ไม่เอา path เข้าไปในแฮช ⇒ worktree ที่สองรันผลบิลด์ของอีกตัวโดยไม่มีคำเตือน |
+| A database/cache container started to test one ticket | run it so it deletes itself on stop (`docker run --rm`) + label it with its owner and ticket · never set it to restart by itself |
+| A database server for tests | use the project's standing one · let the tests create and drop their own sub-databases |
+| The build-output folder of each worktree | delete it together with the worktree at merge or when the ticket is abandoned · 🔴 **never let two worktrees of the same project share one build-output folder** — some build tools (cargo, for one) do not put the path into their hash ⇒ the second worktree runs the other one's build output with no warning |
 
-**ก่อนรายงานว่าจบ ต้องว่าง:** คอนเทนเนอร์ที่ติด label ของตัวเอง · worktree ของใบพร้อมผลบิลด์
+**Before reporting done, these must be empty:** containers carrying your label · the ticket's worktree along with its build output.
 
-กฎอย่างเดียวถูกลืม ⇒ ต้องมี**ตัวกวาดตามรอบ**เป็นด่านคู่กัน และตัวกวาดต้องกัน "กำลังใช้อยู่" สองชั้น:
-(1) ไม่มีไฟล์ใด**ทุกความลึก**ถูกแก้ภายในเกณฑ์เวลา (2) ไม่มีโปรเซสใดเปิดไฟล์ที่อยู่**ข้างใน**
-— เช็กแค่ชั้นบนหรือเช็กแค่ตัวไดเรกทอรี ⇒ ลบผลบิลด์ของงานที่กำลังรันอยู่ (เกิดจริงทั้งสองแบบ)
+A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** as a second gate, and the sweeper must guard "in use" two ways:
+(1) no file **at any depth** was modified within the time threshold (2) no process has a file **inside** open
+— checking only the top level, or only the directory itself, deletes the build output of work that is currently running (both have happened).
 
-### ส่งต่องานข้ามรอบ
+### Handing work across rounds
 
-ใกล้เต็ม/ก่อนงานชิ้นใหญ่ ให้บันทึกลงไฟล์ context: งานคืออะไร · สาขาและสถานะ ·
-**สิ่งที่ทำไปแล้ว** · **ขั้นต่อไปเรียงลำดับ** · ไฟล์/เทสต์สำคัญ · สิ่งที่ยังรอคนตัดสิน · วิธีพิสูจน์
+When you are near full, or before a large piece of work, record into a context file: what the task is · the branch and its state ·
+**what has been done** · **the next steps in order** · key files/tests · what is still waiting on a decision · how to prove it.
 
-เริ่มรอบใหม่: อ่านไฟล์นั้นก่อน → ตรวจสาขาให้ตรง → **ทำต่อจากขั้นถัดไปทันที ไม่ถามซ้ำ**
-→ ล้างส่วนที่ทำเสร็จแล้วออก
+Starting a new round: read that file first → check you are on the right branch → **continue from the next step immediately, without re-asking**
+→ clear out the parts that are finished.
 
 ---
 
-## ที่มา
+## Source
 
-กลั่นจากคู่มือภายในที่ใช้งานจริงทุกวัน ตัดส่วนที่เป็นรายละเอียดโครงสร้างพื้นฐานออกทั้งหมด
+Distilled from an internal guide that is used every day, with all infrastructure detail removed.
 
-เจอข้อที่ใช้ไม่ได้จริงหรืออยากเสนอเพิ่ม เปิด issue ได้
+If you find an item that does not hold up in practice, or want to propose an addition, open an issue.
