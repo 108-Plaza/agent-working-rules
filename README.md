@@ -155,6 +155,35 @@ Every signature was right, so the diagram could not catch it.
 
 ---
 
+### ♻️ Several variants of one job = one shared core + a trait per variant — never a copy per variant
+
+**"This kind of work"** is the same job done for several interchangeable things, where more will come: payment providers,
+notification channels, hardware drivers, recognition engines, storage backends, or the same admin screen needed by several apps.
+
+| Part | Where it lives | Written |
+|---|---|---|
+| What is the same for every variant (routes · auth · validation flow · masking · audit · storage · the screen) | **one central place** | once |
+| What differs (field list · names · mapping · that variant's own rules) | behind an interface — a trait object (`dyn Trait` in Rust) when the variant is chosen at runtime, a generic (`T: Trait`) when it is fixed at compile time | one small file per variant |
+
+- 🔴 **Adding a variant = adding one implementation file.** If it also needs a new route set, a new pair of request/response
+  types, a new handler block or a new screen, the design is a copy, not a reuse — redesign before writing.
+- 🔴 **Before writing variant number two, look at variant number one.** If the new code would be the old code with the names
+  changed, extract the shared core first. The trait and the central type belong in the class diagram.
+- **Safety-relevant logic goes in the core, never in the variant** (masking secrets, authorisation, money rounding, idempotency) —
+  a variant that does not write it cannot get it wrong.
+- **UI too:** one component drawn from data the backend describes (field specifications), embedded by every app that needs it —
+  not one screen per app per variant.
+- Existing copies that other systems call keep their contract (URLs, JSON shapes); re-point them at the shared core in a
+  follow-up ticket rather than breaking the caller.
+- **Reviewer:** a change that adds a per-variant copy where a shared core + trait was possible fails review, unless it says why
+  the variants are not actually alike.
+- ⚠️ **Not a licence to abstract a single case.** One variant with no second in sight stays concrete; this rule fires when the
+  second arrives or is already planned.
+
+Where this came from: a service whose storage layer was already generic over the provider, while its HTTP layer had been copied
+once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
+copy was started and stopped; the replacement was one trait, one registry that does the mapping and masking, and one form.
+
 ## 5. The controller dispatches · implementers do not go and take work
 
 | Who | Does | Must not |
