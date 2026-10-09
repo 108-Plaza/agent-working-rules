@@ -197,6 +197,13 @@ pushing guess-fixes through CI is a loop that never ends and takes resources fro
 **before creating any jobs** ⇒ the required gates never report ⇒ the PR is blocked permanently with no red gate to look at.
 · Saving CI time is the workflow's job, not the commit message's.
 
+🔴 **A change that touches only docs runs no build, test or lint** — on pull requests and on pushes to the main branch alike.
+Every CI run on a doc-only change is a runner taken from code waiting on the same machines.
+- Required checks must still report: give each required workflow an early doc-only decision, and gate every heavy step and every
+  service container on it. **Never path-ignore a required workflow** — a required check that never reports blocks the change forever.
+- Make the decision in a light job that does not wait for a heavy runner or start services; put services and heavy steps in a second, gated job.
+- Check it: on a doc-only change, no build/test step runs and no service container starts. A workflow that still does is a ticket.
+
 ---
 
 ## 7. When you must stop and ask a human
