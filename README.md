@@ -282,6 +282,18 @@ Must fix before merge: <list, or "none">
    but you must first prove that the queued/red ones are not in the main branch's required list
 3. The PR's base is up to date with main
 
+**Two exceptions to condition 3 — merge without updating the branch.** When main moves faster than CI runs, updating the branch every time re-runs CI that cannot change its answer and only burns machines. Either exception applies when:
+- **Main moved only by docs:** every file main changed since the PR's merge-base is a document that no build or check reads.
+- **Main moved only outside the PR's area:** every file main changed is in a different top-level area from every file the PR changes, *and* none of them is shared across areas. For example, the PR touches only the backend and main moved only the web front end.
+  - Shared means anything more than one CI job reads: root manifests and lockfiles, CI configuration, database migrations, shared libraries the PR's area depends on, generated code both sides commit, and build scripts.
+  - Not sure whether a path is shared? Treat it as shared.
+
+For either one:
+- **Proof:** put the list of files main changed since the merge-base in a PR comment.
+- **Still required:** conditions 1 and 2 at the current commit id.
+- **Turns the exception off:** one path that doesn't qualify. Then update the branch as usual.
+- **Where it applies:** only where the hosting platform still allows merging a branch that is behind.
+
 🔴 **Still stop and ask:** a `FAIL` verdict, or a `PASS` carrying a "must fix before merge" list ·
 migrations/schema changes/deletions · anything on the do-not-touch list · going to production · business rules not yet decided.
 
