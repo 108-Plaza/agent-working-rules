@@ -289,7 +289,7 @@ Must fix before merge: <list, or "none">
   - Not sure whether a path is shared? Treat it as shared.
 
 For either one:
-- **Proof:** put the list of files main changed since the merge-base in a PR comment.
+- **Proof:** put the list of files main changed since the merge-base in a PR comment. For the outside-area exception, also say which area the PR is in.
 - **Still required:** conditions 1 and 2 at the current commit id.
 - **Turns the exception off:** one path that doesn't qualify. Then update the branch as usual.
 - **Where it applies:** only where the hosting platform still allows merging a branch that is behind.
