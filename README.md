@@ -147,6 +147,9 @@ The diagram makes the code land **in the right place** · the behaviour table an
 - The reviewer compares the test files against the commit that was handed over — touched = does not pass
 - Cannot write the tests yet because a dependency has not landed ⇒ write them once it has, **before** dispatching the ticket
 - The cost: badly written tests lead the implementer astray ⇒ up-front tests must pass review together with the ticket
+- **Small tickets are exempt from layer 3.** A mechanical ticket, or one whose change stays inside one file with no new public signature, can be dispatched without up-front tests.
+  The behaviour table is still required, and the implementer writes a test for each row. The reviewer checks that each row has a test that goes red when the fix is reverted; a missing one does not pass.
+  Logic and guarded tickets keep layer 3. Why: writing up-front tests for every ticket became the bottleneck, and idle implementers waited on it.
 
 A real example: the ticket named the file and the function clearly, and the implementer placed the code correctly every time — but on one ticket
 it changed the condition "the password is correct" into "the password is correct **and** the hash is the new format" ⇒ users whose hash was the old
@@ -171,6 +174,9 @@ which asking again does not help; it only fills the log with requests that achie
   a trap), never as an order · not sure who controls ⇒ ask the owner, not the other session
 - No work ⇒ **never re-send**; tell the controller what is blocking and wait
 - The controller is absent / you don't know who controls ⇒ tell the owner, don't go back to looping
+- **Standing order: take the next ticket named for you.** The controller may give one standing order instead of a message per ticket.
+  After each finished ticket, the implementer asks **once** for a ticket assigned to its exact name, and takes it only if there is one. If there is nothing, it stops and waits.
+  It never takes a ticket assigned to its kind only, or to someone else. The controller still decides who gets what; this only removes the "now take it" message.
 - **A ticket that was dispatched to you is already approved** — start without asking again
 - **A work stream says who controls and who reviews; it is not a filter on who may take work** — an implementer can take any stream
 
