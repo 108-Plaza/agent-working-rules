@@ -294,7 +294,8 @@ Must fix before merge: <list, or "none">
   - Shared means anything more than one CI job reads: root manifests and lockfiles, CI configuration, database migrations, shared libraries the PR's area depends on, generated code both sides commit, and build scripts.
   - Not sure whether a path is shared? Treat it as shared.
 - **Main moved only in files the PR does not touch (same area):** no file main changed is a file the PR changes, *and* none of main's changed files is a shared file, *and* a trial merge (`git merge-tree --write-tree`) of main into the PR has no conflict. Unlike the area exception, this one applies when both sides are in the same area (e.g. both in the backend).
-  - Shared here means: any package manifest or lockfile, any module-registry file (`mod.rs`, `lib.rs`, `main.rs`, `index.ts` and the like), build scripts, database migrations, CI configuration, and generated code either side commits.
+  - Shared here means: any package manifest or lockfile, any module-registry file (`mod.rs`, `lib.rs`, `main.rs`, `index.ts` and the like) whose change on main removes or changes a line, build scripts, database migrations, CI configuration, and generated code either side commits.
+  - A module registry that main changed by **additions only** (a new module line or a new re-export) does not count as shared: a change that compiled before cannot break because a name was added. Check that the registry's diff on main has no removed lines (`git diff <merge-base> main -- <file> | grep -E '^-[^-]'` prints nothing) and include that in the proof. The post-merge check below stays the safety net.
   - **After merging, watch main's CI for that merge.** If it goes red because the two changes disagree (one changed a signature the other calls), revert the later merge at once and send that PR back to update its branch. Never leave main red while you debug.
 
 For any of them:
