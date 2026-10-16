@@ -303,6 +303,14 @@ For any of them:
 - **Turns the exception off:** one path that doesn't qualify. Then update the branch as usual.
 - **Where it applies:** only where the hosting platform still allows merging a branch that is behind.
 
+**Batch merge: one CI run on the combined head decides for every PR in the batch.** Merging PRs one at a time moves main each time, and every other open PR then needs a branch update, a full CI run and a new verdict. Ten PRs can cost 30–50 runs, where a batch costs 1–4. The latest commit contains all the earlier ones, so its result is the one that counts.
+- **Who:** the controller, or the merger it names. Run one batch per repository at a time, so two batches never race on main.
+- **Build:** cut a batch branch from main and merge each PR's head into it with a real merge (no fast-forward), in stack order: a base PR goes in before the PRs stacked on it. A PR that conflicts leaves the batch. Push the branch and open a PR, so the required gates run **once** on the batch head.
+- **Entry condition per PR:** condition 1. That means a `PASS` from someone who did not write the PR, with nothing in its "must fix" list. The verdict binds to the commit that went into the batch.
+- **What it allows:** green required gates on the batch head stand in for conditions 2 and 3 for every PR in it. No per-PR branch update, no per-PR CI run, no new verdict. Merge the batch with a **merge commit**, never a squash. Each PR's head then becomes part of main's history, so the platform marks each PR merged and closes the ticket it fixes.
+- **Red batch:** bisect into halves, then quarters, to find the PR that breaks it. Send that PR back for rework and re-batch the rest. Never merge a red batch.
+- **After merging:** watch main's CI on the merge commit. If it is red, revert the batch merge at once.
+
 🔴 **Still stop and ask:** a `FAIL` verdict, or a `PASS` carrying a "must fix before merge" list ·
 migrations/schema changes/deletions · anything on the do-not-touch list · going to production · business rules not yet decided.
 
