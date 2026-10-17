@@ -294,6 +294,12 @@ Must fix before merge: <list, or "none">
 2. Required gates are green at the current commit id — **non-required (advisory) gates** that are still queued or red **do not block the merge**,
    but you must first prove that the queued/red ones are not in the main branch's required list
 3. The PR's base is up to date with main
+   - **Exception: main moved only by docs.** Docs here means `*.md`, `docs/**` and design docs, files that no build or gate reads.
+     - If those are the only files changed on main since the PR's merge-base, merge at the passed commit **without** updating the branch. Re-running CI on the new base gives the same result and only costs a runner.
+     - Prove it in a PR comment before merging: `git diff --name-only $(git merge-base origin/main <head>) origin/main`.
+     - One non-doc path ⇒ update the branch as usual.
+     - Conditions 1 and 2 still apply.
+     - **Why:** frequent design-doc merges otherwise keep passed code PRs on an update → CI → re-verdict treadmill.
 
 **Three exceptions to condition 3 — merge without updating the branch.** When main moves faster than CI runs, updating the branch every time re-runs CI that cannot change its answer and only burns machines. Any one of them applies when:
 - **Main moved only by docs:** every file main changed since the PR's merge-base is a document that no build or check reads.
