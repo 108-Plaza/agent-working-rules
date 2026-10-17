@@ -177,6 +177,11 @@ which asking again does not help; it only fills the log with requests that achie
 - **Standing order: take the next ticket named for you.** The controller may give one standing order instead of a message per ticket.
   After each finished ticket, the implementer asks **once** for a ticket assigned to its exact name, and takes it only if there is one. If there is nothing, it stops and waits.
   It never takes a ticket assigned to its kind only, or to someone else. The controller still decides who gets what; this only removes the "now take it" message.
+- 🔴 **Match the model to the ticket before dispatching.** Before every dispatch, the controller decides whether the ticket is easy or hard.
+  Easy = mechanical work (move or rename, styling, copying an existing pattern, simple tests, docs). Hard = logic or guarded work (money, auth, migrations, contracts, design judgement).
+  Send easy tickets to a session running a cheaper, faster model, and hard ones to a session running the stronger model. Check which model a session is on before sending, and switch only an idle one.
+  A ticket whose class does not match its content gets its class fixed first. A rework goes to a session on the model its class needs.
+  **Why:** agent quota is usually spent in proportion to each model's token cost. Running every ticket on the strongest model can use up a shared quota days before it refreshes, while easy tickets gain nothing from it.
 - **A ticket that was dispatched to you is already approved** — start without asking again
 - **A work stream says who controls and who reviews; it is not a filter on who may take work** — an implementer can take any stream
 
