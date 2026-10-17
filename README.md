@@ -185,6 +185,16 @@ which asking again does not help; it only fills the log with requests that achie
 - 🔴 **Keep a ready backlog at least as large as your idle implementers.** Every round, the controller counts the idle implementers its stream can use and the ready tickets nobody holds.
   When there are fewer ready tickets than idle implementers, cutting tickets comes first that round. Pin tickets ahead, so an implementer that finishes takes the next one at once.
   **Why:** more implementers only help if work keeps arriving. One day's measurement found 5 ready tickets against about 19 idle sessions; ticket supply, not workers, was the bottleneck.
+- 🔴 **Design work so at least 80% of implementers run at once, as a team.** In each round, a stream keeps at least 80% of the implementers it may use busy at the same time. Below that, raising concurrency is the controller's first job.
+  - **One piece of work = one design = one team:**
+    - The controller cuts the work into slices whose file scopes do not intersect, and releases all of them together, assigned to different implementers who start in the same minute.
+    - The team shares the reviewed design and the signatures it fixes, so no member waits for another's code.
+    - The team's PRs are reviewed together and merged as one batch.
+    - Size the team to the slices the design really has. If they are too few for the idle implementers, start a second design in parallel.
+  - **Concurrency is designed before the tickets.** Tickets that share a file run one at a time however many implementers there are. Before releasing a set, list each ticket's reserved files and count how many can run at once: that number, not the ticket count, is the stream's real capacity.
+  - **A file that chains tickets is a design defect.** The first ticket splits that file along the design, as a pure code move, and the rest then run in parallel. "Blocked by #N" only orders the chain; it adds no implementers.
+  - **Measure every round:** busy ÷ usable implementers, and why the rest are idle. The causes are no ready ticket, a file lock, a dependency, or an owner decision. Owner decisions that leave implementers idle (parked work, migrations awaiting approval, open questions) go to the owner as one batch, with the idle count attached.
+  - **Why:** one day's measurement found about 30 sessions up but only 2–3 tickets dispatchable. Most open issues were parked, umbrellas, open questions or migrations awaiting the owner, and the ready ones were chained on a single file.
 - 🔴 **Idle AI reviewer/writer sessions cut tickets for a controller.** A session with no review or ticket work can be ordered by a stream's controller to write tickets for that stream: survey, the full ticket, and up-front tests where required.
   The controller reviews each ticket and its tests, then releases and assigns it. The writer never assigns or dispatches, and decides nothing the controller owns. It takes orders only from that controller or the owner.
 - **A ticket that was dispatched to you is already approved** — start without asking again
