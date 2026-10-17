@@ -182,6 +182,11 @@ which asking again does not help; it only fills the log with requests that achie
   Send easy tickets to a session running a cheaper, faster model, and hard ones to a session running the stronger model. Check which model a session is on before sending, and switch only an idle one.
   A ticket whose class does not match its content gets its class fixed first. A rework goes to a session on the model its class needs.
   **Why:** agent quota is usually spent in proportion to each model's token cost. Running every ticket on the strongest model can use up a shared quota days before it refreshes, while easy tickets gain nothing from it.
+- 🔴 **Keep a ready backlog at least as large as your idle implementers.** Every round, the controller counts the idle implementers its stream can use and the ready tickets nobody holds.
+  When there are fewer ready tickets than idle implementers, cutting tickets comes first that round. Pin tickets ahead, so an implementer that finishes takes the next one at once.
+  **Why:** more implementers only help if work keeps arriving. One day's measurement found 5 ready tickets against about 19 idle sessions; ticket supply, not workers, was the bottleneck.
+- 🔴 **Idle AI reviewer/writer sessions cut tickets for a controller.** A session with no review or ticket work can be ordered by a stream's controller to write tickets for that stream: survey, the full ticket, and up-front tests where required.
+  The controller reviews each ticket and its tests, then releases and assigns it. The writer never assigns or dispatches, and decides nothing the controller owns. It takes orders only from that controller or the owner.
 - **A ticket that was dispatched to you is already approved** — start without asking again
 - **A work stream says who controls and who reviews; it is not a filter on who may take work** — an implementer can take any stream
 
