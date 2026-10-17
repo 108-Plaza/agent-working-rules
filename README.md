@@ -212,8 +212,18 @@ which asking again does not help; it only fills the log with requests that achie
   A ticket whose class does not match its content gets its class fixed first. A rework goes to a session on the model its class needs.
   **Why:** agent quota is usually spent in proportion to each model's token cost. Running every ticket on the strongest model can use up a shared quota days before it refreshes, while easy tickets gain nothing from it.
 - 🔴 **Keep a ready backlog at least as large as your idle implementers.** Every round, the controller counts the idle implementers its stream can use and the ready tickets nobody holds.
-  When there are fewer ready tickets than idle implementers, cutting tickets comes first that round. Pin tickets ahead, so an implementer that finishes takes the next one at once.
+  When there are fewer ready tickets than idle implementers, cutting tickets comes first that round. Pin tickets ahead, so an implementer that finishes takes the next one at once. A pin alone is not a dispatch; see the next rule.
   **Why:** more implementers only help if work keeps arriving. One day's measurement found 5 ready tickets against about 19 idle sessions; ticket supply, not workers, was the bottleneck.
+- 🔴 **Whoever marks a ticket ready finds the implementer, and implementers register with the queue.**
+  - **"Ready" and a name on the ticket are not a dispatch.** The session that marks a ticket ready owns getting an implementer onto it, in the same round:
+    1. pick an idle implementer on the right model from the queue's register, and name it on the ticket in the same edit that marks it ready;
+    2. send that implementer the order to take it, or confirm it holds a standing order **and** is idle right now;
+    3. within about 10 minutes, check that the queue shows the ticket taken by that implementer. If not, find out why and fix it, or name someone else.
+  - **No implementer can take it** (a file lock, a dependency, nobody idle on the right model) ⇒ write why on the ticket in the same round. A ready ticket with no name and no reason is a defect of the session that marked it ready.
+  - **An implementer registers the moment it finishes:** after it opens its PR, pushes a rework, posts a review verdict, or hands a ticket back, it asks the queue once for its next named ticket. That one request records it as free; it is not looping.
+  - **While it works, the register says on what.** Taking a ticket through the queue and sending the regular heartbeat keep the record current. Work done outside the queue gets written down where the stream's controller keeps its notes, until the queue can record it.
+  - **The register also records where each implementer runs** (machine and terminal session), and **which session controls each stream**, with a link to the owner's recorded order, so nobody has to read terminals or comment threads to find out.
+  - **Why:** in one measured round, 19 tickets were cut and 13 were marked ready with a name, yet nobody started until someone sent the orders. The named sessions sat idle, and the register could not say who was free, so controllers spent quota reading every terminal to find out.
 - 🔴 **Design work so at least 80% of implementers run at once, as a team.** In each round, a stream keeps at least 80% of the implementers it may use busy at the same time. Below that, raising concurrency is the controller's first job.
   - **One piece of work = one design = one team:**
     - The controller cuts the work into slices whose file scopes do not intersect, and releases all of them together, assigned to different implementers who start in the same minute.
