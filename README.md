@@ -156,8 +156,6 @@ it changed the condition "the password is correct" into "the password is correct
 format could no longer change their password, while every existing test stayed green and the report said the original behaviour had been preserved.
 Every signature was right, so the diagram could not catch it.
 
----
-
 ### ♻️ Several variants of one job = one shared core + a trait per variant — never a copy per variant
 
 **"This kind of work"** is the same job done for several interchangeable things, where more will come: payment providers,
@@ -186,6 +184,8 @@ notification channels, hardware drivers, recognition engines, storage backends, 
 Where this came from: a service whose storage layer was already generic over the provider, while its HTTP layer had been copied
 once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
 copy was started and stopped; the replacement was one trait, one registry that does the mapping and masking, and one form.
+
+---
 
 ## 5. The controller dispatches · implementers do not go and take work
 
