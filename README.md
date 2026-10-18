@@ -330,7 +330,7 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 - **Do:** commit the fix on the PR branch (`fix(review): <what>`), re-run verify, post the verdict at the new head, and list the fix commit in the verdict with what it changed and why.
 - **Why:** a send-back costs a whole rework round (message, re-read, push, fresh CI, second review) for a few lines. Small work bounced back and forth is where quota and time go.
 - **Still send back:** more than 30 lines · outside the file scope · a design or business-rule question · anything that edits, deletes or weakens the tests the ticket author provided · items that must go to the owner.
-- A PASS that contains a reviewer fix of 30 lines or fewer still counts as an independent review; anything larger needs another reviewer.
+- **No second review for the fix:** it needs only the tests green, locally and in CI. A PASS that contains a reviewer fix of 30 lines or fewer still counts as an independent review; anything larger needs another reviewer.
 
 ### The verdict format — a machine reads it; get it wrong and the gate cannot see it
 
