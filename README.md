@@ -329,6 +329,27 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 
 **Found something missed → open a new ticket and send it back; don't fix it yourself** · never close a round with "looks probably fine".
 
+## Big work: one sub-controller per feature branch, one function per worker
+
+A lane controller does not run a large feature itself. It opens one **sub-controller session per feature branch** and supervises it.
+
+- **The sub-controller:**
+  1. builds a **skeleton commit** on `feat/<x>`: every type and signature, empty (`todo!()`) bodies, the up-front tests failing;
+  2. releases **one ticket per function, all at once**;
+  3. reviews each function with only its own tests, fixing small things itself;
+  4. merges them into `feat/<x>`;
+  5. runs the **full suite on the branch early**, so broken test setups become tickets in the next wave rather than a surprise at the end.
+- **The merger** lands `feat/<x>` on main as **one PR with one CI run**.
+- **Workers** implement one function, run only that function's test, and open their PR into `feat/<x>`.
+- **The lane controller:**
+  - gives each sub-controller its orders;
+  - rules when two branches need the same file;
+  - brings owner decisions (migrations, business rules) in one batch;
+  - checks main after each merge;
+  - closes a sub-controller once its work is on main and main is green.
+- **Every work proposal states how many controllers and how many workers** (and on which machines and models), with each lane's done line.
+- **A ticket that grows past its file scope is a feature, not a ticket:** give it a sub-controller.
+
 ### The verdict format — a machine reads it; get it wrong and the gate cannot see it
 
 ```
