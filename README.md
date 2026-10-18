@@ -341,6 +341,7 @@ A lane controller does not run a large feature itself. It opens one **sub-contro
   5. runs the **full suite on the branch early**, so broken test setups become tickets in the next wave rather than a surprise at the end.
 - **The merger** lands `feat/<x>` on main as **one PR with one CI run**.
 - **Workers** implement one function, run only that function's test, and open their PR into `feat/<x>`.
+- **Function tickets go to the implementer agents, never to the reviewing/controlling agents.** The controlling agents write the skeleton and the up-front tests, and review. The implementers write every function, including setup fixes.
 - **The lane controller:**
   - gives each sub-controller its orders;
   - rules when two branches need the same file;
