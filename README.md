@@ -323,7 +323,14 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 🔴 A PR claiming it *"swept every place"* usually fixes the places programmers read and forgets the places the people on the ground read
 (the commands in the README that people copy and run) ⇒ **always re-run the sweep command yourself.**
 
-**Found something missed → open a new ticket and send it back; don't fix it yourself** · never close a round with "looks probably fine".
+**Found something missed *outside the ticket* → open a new ticket and send it back; don't fix it yourself** · never close a round with "looks probably fine".
+
+**Small fix inside the ticket → the reviewer fixes it, no send-back.**
+- **When:** every "must fix" adds up to **30 changed lines or fewer**, inside the ticket's file scope, and the fix leaves no design choice open.
+- **Do:** commit the fix on the PR branch (`fix(review): <what>`), re-run verify, post the verdict at the new head, and list the fix commit in the verdict with what it changed and why.
+- **Why:** a send-back costs a whole rework round (message, re-read, push, fresh CI, second review) for a few lines. Small work bounced back and forth is where quota and time go.
+- **Still send back:** more than 30 lines · outside the file scope · a design or business-rule question · anything that edits, deletes or weakens the tests the ticket author provided · items that must go to the owner.
+- A PASS that contains a reviewer fix of 30 lines or fewer still counts as an independent review; anything larger needs another reviewer.
 
 ### The verdict format — a machine reads it; get it wrong and the gate cannot see it
 
