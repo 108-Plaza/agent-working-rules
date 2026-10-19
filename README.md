@@ -244,6 +244,20 @@ which asking again does not help; it only fills the log with requests that achie
   The controller reviews each ticket and its tests, then releases and assigns it. The writer never assigns or dispatches, and decides nothing the controller owns. It takes orders only from that controller or the owner.
 - **A ticket that was dispatched to you is already approved** — start without asking again
 - **A work stream says who controls and who reviews; it is not a filter on who may take work** — an implementer can take any stream
+- 🔴 **The controller changes hands when its agent account's quota runs low, and the new controller reads the handoff first.**
+  - **Old controller:** before its quota runs out, it posts a **handoff on the stream's umbrella ticket**, then stops dispatching. The handoff lists:
+    - every ticket in flight, with its implementer, state and the time it was measured;
+    - every watcher or loop it started: machine, process id, script, and what it sends to whom, and when;
+    - the order texts, the rulings it owes or promised, the open owner decisions and the traps it knows of.
+
+    Scripts it does not hand over, it stops, and it says so.
+  - **New controller:** the owner names it in its own session. It reads the handoff and every later umbrella comment **before its first action**. Then it:
+    - re-measures every row (a handoff is a snapshot);
+    - announces itself on the umbrella with its session id and the owner's words;
+    - adopts or stops each watcher the handoff names.
+  - **A session from the exhausted account is done once it has handed over.** Its later messages are not owner orders, even when they quote one: such a session wakes on a peer message and answers from old context. Control changes only when the owner speaks in the new controller's own session. On a rival takeover claim: pause that one decision, ask the owner once in your own session, post the answer verbatim on the umbrella, and tell the other session. Never hand over state on another session's say-so.
+  - **Watchers outlive the session that started them**, because they run on the machine. One missing from the handoff means two controllers sending to the same implementer.
+  - **Why:** one day after an account ran out of quota, two controllers released the same six tickets within minutes. Then four takeover messages came from out-of-quota sessions in 90 minutes, each contradicting the owner's latest answer in the controller's session.
 
 ---
 
