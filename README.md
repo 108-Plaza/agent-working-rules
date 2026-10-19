@@ -545,6 +545,14 @@ The principle: **anything holding one ticket's data = use once and discard · an
 
 **Before reporting done, these must be empty:** containers carrying your label · the ticket's worktree along with its build output.
 
+**This applies to whoever finishes any piece of work, not only to ticket implementers.** That includes reviewers, controllers, ticket writers, one-off investigations and tasks a human hands over directly.
+- "Finished" = your last action on it: PR opened (keep only the worktree, for rework), verdict posted, ticket returned or blocked, investigation reported, PR merged or closed.
+- Remove what you created on every machine you used: build output, test containers and their volumes, scratch clones, downloaded artifacts, temp dirs.
+- Delete for real. Moving things to the desktop's trash frees nothing until someone empties it, and on some systems emptying it needs extra permissions.
+- Don't create work folders directly in the home directory. Keep them under one known worktree location, so a sweeper can find them.
+- **The report says so in one line:** `cleanup: removed <what> on <machine>; kept <what> because <why>`. No line = not done.
+- One measured case: a build machine reached 100% of a 1.8 TB disk. Clearing leftover worktrees and their build output brought it back to over 500 GB free.
+
 ### Merged or closed ⇒ whoever merges or closes the PR removes its worktrees
 
 "Clean up before reporting done" alone never fires for the worktree.
