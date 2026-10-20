@@ -531,6 +531,20 @@ When a customer calls, you must be able to say which build they are on.
 - Confirm a release by **the build's identity**, not by HTTP 200 (a 200 can come from the old one)
 - **Never change the version number in a feature PR** — move it only in the release commit
 
+### Tests run only what a change can affect · every test runner takes a filter
+
+A suite that always runs everything makes every check cost the same as the biggest one, so people stop running tests.
+- **The scope follows the change**: test the packages whose files changed plus every package that depends on them.
+  A package nothing touched runs no tests.
+- 🔴 **Unknown means everything**: an unreadable diff, a failed dependency read, or a change to the CI config,
+  toolchain, lockfile or shared fixtures runs the full suite. A plan that guesses "nothing affected" hides breaks
+- **Every test entry point takes a filter, the same shape locally and in CI**: by package and by test name.
+  A manual CI run accepts both as inputs, so checking one change does not cost the whole suite
+- **A re-run of a failed run runs only the tests that failed**, never the whole set again
+- **The full suite still runs somewhere**: nightly, and on the change that lands a feature branch on main,
+  so scoping never hides a break for more than a day
+- The plan that picks the scope is a script with its own self-test, not logic buried in CI config
+
 ### Clean up what you created for a ticket before reporting it done
 
 Several implementers on one machine create build outputs, test databases and containers, and nobody cleans them up
