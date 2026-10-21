@@ -144,6 +144,7 @@ because other tickets are being written against it.
 
 The diagram makes the code land **in the right place** · the behaviour table and the tests make it **mean the right thing**.
 - The ticket author commits the failing tests on the ticket's branch before dispatching · the implementer makes them pass and may add more, but 🔴 **must not edit, delete or weaken the tests it was given**
+- If your dispatcher builds the work order from a machine-read line in the ticket, put the test branch in that line too, not only in prose. Otherwise the order tells the implementer to branch from the default branch while the ticket says the opposite, and the implementer gets two instructions that cannot both be true.
 - The reviewer compares the test files against the commit that was handed over — touched = does not pass
 - Cannot write the tests yet because a dependency has not landed ⇒ write them once it has, **before** dispatching the ticket
 - The cost: badly written tests lead the implementer astray ⇒ up-front tests must pass review together with the ticket
