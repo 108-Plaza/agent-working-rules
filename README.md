@@ -545,6 +545,8 @@ The principle: **anything holding one ticket's data = use once and discard · an
 
 **Before reporting done, these must be empty:** containers carrying your label · the ticket's worktree along with its build output.
 
+**Give agents one delete command they are allowed to run, not a bare `rm`.** If agent sessions cannot delete at all, the cleanup rule cannot be followed at the moment it applies, when the work closes. Allowing `rm -rf` everywhere is the opposite failure. The middle path: one cleanup script, allowed by its exact path in every machine's agent settings, that deletes only scratch folders (worktree and temp roots) and refuses a folder a process is in or that holds uncommitted or unpushed work. Count a squash-merged branch as pushed when merging it into the default branch changes nothing, or the most common leftover is never cleaned. The script prints one line saying what it removed and what it kept and why, for the report. When it is too strict, change its checks; never widen the allow rule to `rm`. The person who owns the machines adds that allow rule; an agent does not grant itself permissions.
+
 A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** as a second gate, and the sweeper must guard "in use" two ways:
 (1) no file **at any depth** was modified within the time threshold (2) no process has a file **inside** open
 — checking only the top level, or only the directory itself, deletes the build output of work that is currently running (both have happened).
