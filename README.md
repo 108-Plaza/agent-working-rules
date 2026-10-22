@@ -451,6 +451,13 @@ adding retries/delays · skipping tests · cleaning bad data by hand while the t
 **No evidence = do not name anyone**; describe the mechanism instead ("two ticket openers who did not know about each other") ·
 told that you identified someone wrongly ⇒ **fix it at the source** (the comment you sent), not just acknowledge it in the conversation.
 
+### 🕒 Every time you write is in the team's local time, with the zone named
+
+- **Every clock time you write** is in the team's local time with the zone named, for example `09:20 ICT` or `2026-10-22 09:20 ICT` (ours is ICT, UTC+7). That covers replies, notifications, reports, tickets, comments, PR bodies and docs. Never write a bare UTC time or an unlabelled time.
+- **Tools speak UTC** (shell `date -u`, GitHub timestamps, queues, CI logs). Convert before you write, and remember that the date can roll over.
+- **A pasted log line or command output stays as it is**; it is evidence. Put the local time beside it when the sentence relies on the time.
+- Durations and relative times ("in 30 min", "2 h ago") need no zone.
+
 ### ✍️ The first line of every comment says who wrote it
 
 When several agents post through the same account, the web page cannot tell who is speaking.
