@@ -552,6 +552,29 @@ The principle: **anything holding one ticket's data = use once and discard · an
 
 **Before reporting done, these must be empty:** containers carrying your label · the ticket's worktree along with its build output.
 
+**This applies to whoever finishes any piece of work, not only to ticket implementers.** That includes reviewers, controllers, ticket writers, one-off investigations and tasks a human hands over directly.
+- "Finished" = your last action on it: PR opened (keep only the worktree, for rework), verdict posted, ticket returned or blocked, investigation reported, PR merged or closed.
+- Remove what you created on every machine you used: build output, test containers and their volumes, scratch clones, downloaded artifacts, temp dirs.
+- Delete for real. Moving things to the desktop's trash frees nothing until someone empties it, and on some systems emptying it needs extra permissions.
+- Don't create work folders directly in the home directory. Keep them under one known worktree location, so a sweeper can find them.
+- **The report says so in one line:** `cleanup: removed <what> on <machine>; kept <what> because <why>`. No line = not done.
+- One measured case: a build machine reached 100% of a 1.8 TB disk. Clearing leftover worktrees and their build output brought it back to over 500 GB free.
+
+### Merged or closed ⇒ whoever merges or closes the PR removes its worktrees
+
+"Clean up before reporting done" alone never fires for the worktree.
+- An implementer "finishes" when it opens the PR, and it must **keep** the worktree then, because a failed review sends the PR back for rework.
+- The merge happens later, in **another session**. If the merge steps say nothing about cleanup, nobody owns the worktree after merge.
+- Leftover worktrees also pin their merged branches, because branch cleanup skips a branch that is checked out somewhere.
+- One measured case: a build machine reached 100% of a 1.8 TB disk, with ~520 GB of build output in leftover worktrees.
+
+So:
+1. **The session that merges a PR, or closes it unmerged, removes that PR's worktrees in the same turn.** That covers its own machine and the implementer's machine where it can reach it. Then it prunes the repo's worktree records (`git worktree prune`).
+2. **Never remove a folder in use:** a process has its working directory inside it, or it has uncommitted changes or commits not pushed. Leave that one, and say on the PR which folder was kept and why.
+3. **Reviewers delete their review worktree** as soon as the verdict is posted.
+4. **Every dispatch order ends with:** "when your PR is merged or closed, delete its worktree; before the next ticket, delete any of yours whose PR is already merged".
+5. **The periodic sweeper (below) also removes idle worktrees whose work is pushed or merged**, as the backstop for sessions that died. It is not a reason to skip step 1.
+
 A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** as a second gate, and the sweeper must guard "in use" two ways:
 (1) no file **at any depth** was modified within the time threshold (2) no process has a file **inside** open
 — checking only the top level, or only the directory itself, deletes the build output of work that is currently running (both have happened).
