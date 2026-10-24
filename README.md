@@ -144,6 +144,7 @@ because other tickets are being written against it.
 
 The diagram makes the code land **in the right place** · the behaviour table and the tests make it **mean the right thing**.
 - The ticket author commits the failing tests on the ticket's branch before dispatching · the implementer makes them pass and may add more, but 🔴 **must not edit, delete or weaken the tests it was given**
+- If your dispatcher builds the work order from a machine-read line in the ticket, put the test branch in that line too, not only in prose. Otherwise the order tells the implementer to branch from the default branch while the ticket says the opposite, and the implementer gets two instructions that cannot both be true.
 - The reviewer compares the test files against the commit that was handed over — touched = does not pass
 - Cannot write the tests yet because a dependency has not landed ⇒ write them once it has, **before** dispatching the ticket
 - The cost: badly written tests lead the implementer astray ⇒ up-front tests must pass review together with the ticket
@@ -551,6 +552,8 @@ The principle: **anything holding one ticket's data = use once and discard · an
 | The build-output folder of each worktree | delete it together with the worktree at merge or when the ticket is abandoned · 🔴 **never let two worktrees of the same project share one build-output folder** — some build tools (cargo, for one) do not put the path into their hash ⇒ the second worktree runs the other one's build output with no warning |
 
 **Before reporting done, these must be empty:** containers carrying your label · the ticket's worktree along with its build output.
+
+**Give agents one delete command they are allowed to run, not a bare `rm`.** If agent sessions cannot delete at all, the cleanup rule cannot be followed at the moment it applies, when the work closes. Allowing `rm -rf` everywhere is the opposite failure. The middle path: one cleanup script, allowed by its exact path in every machine's agent settings, that deletes only scratch folders (worktree and temp roots) and refuses a folder a process is in or that holds uncommitted or unpushed work. Count a squash-merged branch as pushed when merging it into the default branch changes nothing, or the most common leftover is never cleaned. The script prints one line saying what it removed and what it kept and why, for the report. When it is too strict, change its checks; never widen the allow rule to `rm`. The person who owns the machines adds that allow rule; an agent does not grant itself permissions.
 
 A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** as a second gate, and the sweeper must guard "in use" two ways:
 (1) no file **at any depth** was modified within the time threshold (2) no process has a file **inside** open
