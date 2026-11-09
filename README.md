@@ -15,11 +15,13 @@ what a work ticket must contain, and what you must stop and ask a human about.
 | Role | Does | Must not |
 |---|---|---|
 | **Owner** (human) | decides business rules · approves exceptions · is the final arbiter | — |
-| **Controller** | explores · designs · **writes the tickets** · dispatches · monitors · reviews | merge work it wrote itself |
-| **Implementer** | takes a ticket and follows it through to an open PR | review its own work · work outside the ticket |
-| **Reviewer** | checks the work against the ticket's criteria one by one · runs the proving commands itself | approve work it wrote itself |
+| **Controller** | explores · designs · **writes the tickets** · dispatches ordinary tickets to the implementer and hard tickets to a hard-ticket author · monitors | merge work it wrote itself · review PRs (reviews belong to the reviewer) |
+| **Implementer** | takes an **ordinary** ticket and follows it through to an open PR | review its own work · work outside the ticket · author hard tickets |
+| **Hard-ticket author** | authors tickets marked hard | merge or review work it wrote itself |
+| **Reviewer** | checks **every** PR against the ticket's criteria one by one · runs the proving commands itself | approve work it wrote itself |
 
 **The principles that keep this from breaking:** one ticket = one implementer · the reviewer must not be the author ·
+the ticket writer does not review · hard tickets are not given to the ordinary implementer ·
 one controller per work stream.
 
 ### An implementer may propose — but *on the ticket*, never in chat
@@ -207,11 +209,14 @@ which asking again does not help; it only fills the log with requests that achie
   After each finished ticket, the implementer asks **once** for a ticket assigned to its exact name, and takes it only if there is one. If there is nothing, it stops and waits.
   It never takes a ticket assigned to its kind only, or to someone else. The controller still decides who gets what; this only removes the "now take it" message.
 - 🔴 **When the team adopts a coding-style skill, every work order tells the implementer to read and follow it.** An agent that only loads skills at startup won't pick up a newly installed one, and restarting busy sessions throws work away. So the order itself carries one line: read the skill file and follow it for this ticket, and where it conflicts with the ticket or these rules (file scope, provided tests, comment and PR formats, queue steps), the ticket and the rules win. That second half matters: a "be brief, change little" skill must never drop a required line, test or step.
-- 🔴 **Match the model to the ticket before dispatching.** Before every dispatch, the controller decides whether the ticket is easy or hard.
-  Easy = mechanical work (move or rename, styling, copying an existing pattern, simple tests, docs). Hard = logic or guarded work (money, auth, migrations, contracts, design judgement).
-  Send easy tickets to a session running a cheaper, faster model, and hard ones to a session running the stronger model. Check which model a session is on before sending, and switch only an idle one.
-  A ticket whose class does not match its content gets its class fixed first. A rework goes to a session on the model its class needs.
-  **Why:** agent quota is usually spent in proportion to each model's token cost. Running every ticket on the strongest model can use up a shared quota days before it refreshes, while easy tickets gain nothing from it.
+- 🔴 **Match the role and the model to the ticket before dispatching.** Before every dispatch, the controller decides whether the ticket is ordinary or hard.
+  Ordinary easy work (move or rename, styling, copying an existing pattern, simple tests, docs) goes to an implementer on a cheaper, faster model.
+  Ordinary logic work goes to an implementer on a stronger model.
+  **Hard tickets** (guarded work: money, auth, migrations, contracts, design judgement that must not be gotten wrong) are authored by a hard-ticket author, not the ordinary implementer.
+  **Every PR is reviewed by the reviewer**, not by the ticket-writing controller and not by the author.
+  Check which model a session is on before sending, and switch only an idle one.
+  A ticket whose class does not match its content gets its class fixed first. A rework goes to the role and model its class needs.
+  **Why:** ordinary work should not sit on the hardest-to-staff role, and reviews must stay independent of the ticket writer and the author.
 - 🔴 **Keep a ready backlog at least as large as your idle implementers.** Every round, the controller counts the idle implementers its stream can use and the ready tickets nobody holds.
   When there are fewer ready tickets than idle implementers, cutting tickets comes first that round. Pin tickets ahead, so an implementer that finishes takes the next one at once. A pin alone is not a dispatch; see the next rule.
   **Why:** more implementers only help if work keeps arriving. One day's measurement found 5 ready tickets against about 19 idle sessions; ticket supply, not workers, was the bottleneck.
@@ -321,6 +326,8 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 ---
 
 ## 8. Review
+
+**Every PR is reviewed by the reviewer.** The ticket-writing controller does not review, and the author does not review their own work.
 
 "The implementer closed the ticket" and "CI is green" **are not evidence of quality.**
 
@@ -538,8 +545,9 @@ When a customer calls, you must be able to say which build they are on.
 - Confirm a release by **the build's identity**, not by HTTP 200 (a 200 can come from the old one)
 - **Never change the version number in a feature PR** — move it only in the release commit
 
-### Clean up what you created for a ticket before reporting it done
+### Always clean up what you created, before reporting done — never leave junk behind
 
+Whoever finishes a piece of work cleans up. This applies to every role.
 Several implementers on one machine create build outputs, test databases and containers, and nobody cleans them up
 ⇒ the disk fills faster than anyone expects, and the machine slows down because things nobody uses are still running.
 The principle: **anything holding one ticket's data = use once and discard · anything expensive to recreate that holds nobody's data = reuse.**
