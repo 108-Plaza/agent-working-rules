@@ -187,6 +187,30 @@ Where this came from: a service whose storage layer was already generic over the
 once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
 copy was started and stopped; the replacement was one trait, one registry that does the mapping and masking, and one form.
 
+### 🦀 Rust: let the compiler catch the mistake — the goal is not shorter code
+
+Asked whether to rewrite code with newer syntax so it is shorter and has fewer mistakes, the answer was: shorter code is not the goal;
+a compiler error at the place a mistake would otherwise slip through is. These rules apply to **new code and code a ticket already
+touches** — they are not a reason to sweep existing code, because a sweep with no failure seen is over-design.
+
+| Write | Instead of | What the compiler then catches |
+|---|---|---|
+| `match` on your own enum with every variant named | a `_ =>` arm | a new variant forces every `match` to handle it |
+| an enum for a closed set of states | `bool` flags or string states | impossible combinations and typos |
+| newtypes for money and ids (`Cents(i64)`, `TenantId(Uuid)`) | bare `i64` / `Uuid` / `String` in a signature | arguments passed in the wrong order, units mixed up |
+| `#[must_use]` on functions whose result must be checked | a result the caller can drop silently | a forgotten check |
+
+- `_ =>` stays fine for foreign `#[non_exhaustive]` enums, integers and strings.
+- **Enum vs `dyn` vs generic:** a closed set only you extend ⇒ enum + `match`. An open set of variants ⇒ the ♻️ rule above, a trait
+  object or a generic — an enum would make every new variant edit one central file that every ticket then has to reserve.
+- **Keep `#[async_trait]` on any trait used as `dyn`.** Native `async fn` and `-> impl Trait` in a trait (RPITIT, Rust 1.75) make the
+  trait not dyn compatible (E0038). Use them only on generic-only traits; when the future must be `Send`, write
+  `-> impl Future<Output = T> + Send` yourself, because callers cannot add the bound (return type notation is still unstable).
+- Trait upcasting (Rust 1.86) means `trait X: Any` replaces a hand-written `fn as_any(&self) -> &dyn Any`.
+
+Where this came from: a count across six Rust services found that 66 of 78 `#[async_trait]` traits were used as `dyn`, with no
+`as_any` helpers and a single boxed-iterator return — rewriting to newer syntax would have saved almost nothing.
+
 ---
 
 ## 5. The controller dispatches · implementers do not go and take work
@@ -344,6 +368,7 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 | actually wired up, or just the pieces written? | test at the seam, not only at the pieces |
 | is the PR's base up to date with main? | green on an old base, merged, then main goes red |
 | was it fixed at the **root cause**? | a symptom-site fix with no root-cause ticket does not pass |
+| Rust: does new code add a `_ =>` on your own enum, or a bare integer/UUID for money or an id in a new signature? (🦀 above) | a new variant or a swapped argument compiles and ships · existing code the PR does not touch is out of scope |
 
 🔴 A PR claiming it *"swept every place"* usually fixes the places programmers read and forgets the places the people on the ground read
 (the commands in the README that people copy and run) ⇒ **always re-run the sweep command yourself.**
