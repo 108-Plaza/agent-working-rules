@@ -187,6 +187,39 @@ Where this came from: a service whose storage layer was already generic over the
 once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
 copy was started and stopped; the replacement was one trait, one registry that does the mapping and masking, and one form.
 
+### 🦀 Rust: let the compiler catch the mistake, not shorter code
+
+Shorter code is not the goal. The goal is a compiler error at the place a mistake would otherwise slip through.
+These rules apply to **new code and code a ticket already touches**. They are not a reason to sweep existing code: a sweep with
+no failure seen is over-design.
+
+| Write | Instead of | What the compiler then catches |
+|---|---|---|
+| `match` on your own enum with every variant named | a `_ =>` arm | a new variant forces every `match` to handle it |
+| an enum for a closed set of states | `bool` flags or string states | impossible combinations and typos |
+| newtypes for money and ids (`Satang(i64)`, `TenantId(Uuid)`) | bare `i64` / `Uuid` / `String` in a signature | arguments passed in the wrong order, units mixed up |
+| `#[must_use]` on functions whose result must be checked | a result the caller can drop silently | a forgotten check |
+
+- `_ =>` stays fine for foreign `#[non_exhaustive]` enums, integers and strings.
+- **Choosing enum vs `dyn` vs generic:** a closed set that only you extend ⇒ enum + `match`. An open set of variants
+  (providers, channels, drivers) ⇒ ♻️ above, a trait object or a generic, because an enum would make every new variant edit
+  one central file.
+- **`#[async_trait]` stays on any trait used as `dyn`.** Native `async fn` and `-> impl Trait` in a trait (RPITIT, Rust 1.75)
+  make the trait not dyn compatible (E0038). Use them only on generic-only traits, and when the future must be `Send` write
+  `-> impl Future<Output = T> + Send`.
+- Trait upcasting (Rust 1.86): `trait X: Any` replaces a hand-written `fn as_any(&self) -> &dyn Any`, and `&dyn Sub` turns
+  into `&dyn Super` directly (`trait Sub: Super`), so no hand-written `as_super()` either.
+- **A closed enum with many trait methods:** `enum_dispatch` generates the forwarding `match` for every method. It is still a
+  closed set: a new variant edits the central enum. For an open set, use ♻️.
+- **An open set (`dyn`) whose methods return an iterator or a future, where the box is measured to cost something:** split it
+  into a generic-only trait with RPITIT or native `async fn`, plus a dyn-safe "erased" trait with a blanket impl that boxes the
+  result for trait-object callers. With no measured cost, keep `#[async_trait]` / `Box<dyn Iterator>`.
+- `derive_more` is fine for the boilerplate newtypes create (`Display`, `From`, `Deref` on a newtype). Derive only what a caller
+  uses: a derived `From` or `Deref` reopens the very mix-ups the newtype was there to stop.
+
+Measured across six production Rust services: most `#[async_trait]` traits were used as `dyn`, and almost nothing would get
+shorter by moving to the newer syntax, so the rules above aim at catching mistakes, not at rewriting.
+
 ---
 
 ## 5. The controller dispatches · implementers do not go and take work
