@@ -470,6 +470,14 @@ adding retries/delays · skipping tests · cleaning bad data by hand while the t
 \+ what the root cause is (2) **open a ticket at the root cause before merging**, linked both ways
 (3) the symptom's ticket must not be closed as "fixed".
 
+### 🧭 Every decision carries its reason, written where the next session reads it
+
+What was decided is not enough; **why** must be written too, or the next session re-derives it, gets it wrong, and the same idea is proposed and cancelled again.
+
+- **The owner decides or rejects something ⇒ write one entry: the decision, the owner's words, the reason.** The reason is checked against the code or the logs (`file:line`, a log time), not remembered. Write it in the repo's design doc, which every session reads.
+- **Before proposing a change to something already decided, read its reason first.** If the reason no longer holds, say what changed, with evidence.
+- **When restating your understanding, include the why, not only the steps.**
+
 ### 📌 Make the fact the subject — cite a ticket as the *source*, not as the *status*
 
 `"ticket #N is open"` is a time bomb: true only on the day it was typed ·
