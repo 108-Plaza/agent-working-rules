@@ -187,6 +187,40 @@ Where this came from: a service whose storage layer was already generic over the
 once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
 copy was started and stopped; the replacement was one trait, one registry that does the mapping and masking, and one form.
 
+### 🔍 Reuse only what keeps the same contract — "similar" is not "the same"
+
+♻️ above says *build one shared core*. This rule says *what may go into it*. Agents decide to reuse from what looks alike
+(name, field shape, most of the steps, tests pass) and never check what happens inside. The types match, so the compiler is silent.
+
+**The test for reuse:** two callers may share an object only if **both would have to change together, for the same reason**.
+If one could need a change the other must not get, they only look alike today. Sharing ties them together, so the next fix for one breaks the other.
+
+**Before reusing an object, a flow, or a function for new work, fill this table:**
+
+| Dimension | What the new work needs | What the candidate does |
+|---|---|---|
+| State it expects at the start (screen, session, lock, row status) | | |
+| State it leaves at the end | | |
+| Inputs and edge values (0, empty, negative, missing) | | |
+| Output, rounding, units | | |
+| Side effects (database writes, events, outside calls, money moved) | | |
+| Errors: raised, swallowed, defaulted | | |
+| Idempotency and retry | | |
+| Permissions and tenant | | |
+| Who owns its rules, and why it would change | | |
+
+- **Every row matches ⇒ reuse.**
+- **Any row differs ⇒ do not reuse it as it is.** Either write a separate object, or move only the rows that are the same into ♻️'s core and put the differing rows behind a trait.
+- 🔴 **Never add a flag, a parameter or an `if` to the candidate so it fits the new caller.** That is the plainest sign the wrong object was picked. Every existing caller now runs through the new branch.
+- 🔴 **Adding a new flow ⇒ write it from what it needs, never by copying or trimming an existing flow.** Reuse the parts beneath it whose contract really is the same (recorded buttons, one unlock step, a shared list of popups). Flows differ in where they start and where they end, and a copy inherits both.
+- **Make the code say it:** when two objects look alike, put a doc comment on each saying what it is for **and what it is not for, and why**.
+  Name by meaning, not shape (`RefundAmount`, not `Amount`). Use newtypes (§ 🦀) so passing the wrong one does not compile.
+- **The new caller has its own tests** for the rows of the table that matter to it, and they must be able to go red. Tests of the reused object only prove it does what it always did, not that this is what the new caller needs.
+- **The ticket author** says which way to go when a similar object already exists (*"reuse `X`: the table matches"* or *"do not use `X`, because <row>"*). Never leave it for the implementer to guess. When a human rejects a reuse, write the decision and its reason in the design doc, so the next session does not propose it again.
+- **The implementer** puts a `Reuse:` section in any PR that reuses something in a new place. It names what is reused and gives the table, or one line per row that could differ.
+
+Where this came from: a phone-automation bot had a recorded "login" flow and needed a "transfer" flow. Each time a flow was added, the agent derived it from the login flow. First it proposed cutting the login's closing steps so the app would stay open for the transfer. Then it proposed a login copy that ends in a transfer. Both were wrong. The login job ends with the phone locked, a transfer is never run straight after a login, and the transfer's first steps expect the home screen. The start and end states differed, the two rows of the table nobody filled in. What the flows really share is the layer below them: the recorded buttons, the popups list and the unlock step.
+
 ### 🦀 Rust: let the compiler catch the mistake, not shorter code
 
 Shorter code is not the goal. The goal is a compiler error at the place a mistake would otherwise slip through.
@@ -377,6 +411,7 @@ If no answer:  <which path I take meanwhile, or where the work stops and who is 
 | actually wired up, or just the pieces written? | test at the seam, not only at the pieces |
 | is the PR's base up to date with main? | green on an old base, merged, then main goes red |
 | was it fixed at the **root cause**? | a symptom-site fix with no root-cause ticket does not pass |
+| **reuse:** does the PR call an existing object, flow or function from a new place, or copy or trim an existing flow (§ 🔍)? | no `Reuse:` table, a row that differs, or a flag/`if` added to make it fit ⇒ does not pass · check start state, end state and side effects against the code yourself |
 
 🔴 A PR claiming it *"swept every place"* usually fixes the places programmers read and forgets the places the people on the ground read
 (the commands in the README that people copy and run) ⇒ **always re-run the sweep command yourself.**
