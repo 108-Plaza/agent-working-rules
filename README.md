@@ -49,6 +49,7 @@ Exceptions: something you just broke yourself on a branch that is not merged · 
 The backlog grows when opening a ticket costs nothing, so the cap is on creation.
 
 - **Every repository keeps ≤ 20 open issues.** Pull requests are not counted.
+- **Feature-branch function tickets are exempt.** These are the short-lived one-function tickets a sub-controller releases. Each one names its feature branch as its base and closes when merged into it. The cap is on backlog, not on work a worker is running.
 - **Over 20 ⇒ bring the count down before opening anything new there.**
   - Close what is done, citing the PR or commit.
   - Close duplicates and superseded tickets, each pointing at the one that stays.
