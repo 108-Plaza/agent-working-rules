@@ -44,6 +44,20 @@ Exceptions: something you just broke yourself on a branch that is not merged · 
 
 🔴 **A closed ticket means review starts, not that the work is over** — including tickets you neither opened nor worked on.
 
+### At most 20 open issues per repository — every repository
+
+The backlog grows when opening a ticket costs nothing, so the cap is on creation.
+
+- **Every repository keeps ≤ 20 open issues.** Pull requests are not counted.
+- **Over 20 ⇒ bring the count down before opening anything new there.**
+  - Close what is done, citing the PR or commit.
+  - Close duplicates and superseded tickets, each pointing at the one that stays.
+  - Close what will not be done as `not planned`, with a reason someone can re-check.
+  - Fold small related tickets into one.
+  - Finish work in flight rather than releasing more.
+- **While a repository is over 20**, a new issue is allowed only on an owner's order, or for a ticket that replaces several, so the count goes down. Found work goes as a comment on the closest open ticket.
+- 🔴 **Never reach the number by hiding work.** Don't move issues to another place, a document or a label. Don't close unresolved work without a reason. A question waiting on the owner stays open, and is brought to the owner.
+
 ---
 
 ## 3. A ticket must be workable without the conversation
