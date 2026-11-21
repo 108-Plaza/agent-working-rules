@@ -376,6 +376,17 @@ Every CI run on a doc-only change is a runner taken from code waiting on the sam
 - Make the decision in a light job that does not wait for a heavy runner or start services; put services and heavy steps in a second, gated job.
 - Check it: on a doc-only change, no build/test step runs and no service container starts. A workflow that still does is a ticket.
 
+🔴 **A pull request's build, test and lint run only at its merge turn, in every repository** — not on every push.
+Each push throws the previous run away, so a run before the change is about to merge is a runner taken for nothing.
+- Mark the merge turn with one label on one change at a time. Every heavy job's **first step fails** when the label is missing, so the
+  required check reports *failed* in seconds. Never *skip* it instead: a skipped required check counts as passing.
+- Put the check in each heavy job, not in a separate job the heavy ones depend on — a failed dependency makes them *skipped*, which is green.
+- Don't trigger on label events: every status label someone adds would start a full run. Add the label, then update the branch
+  (or close and reopen) so a new event carries it; re-running an old run does not see a label added later.
+- Pushes to the main branch, manual runs, schedules, deploys and light gates (seconds-long checks) are unchanged.
+  A copy of the workflow in a repository whose contributors cannot add labels keeps running fully there.
+- A new repository or heavy workflow has the gate from its first commit; a heavy pull-request job without it fails review.
+
 ---
 
 ## 7. When you must stop and ask a human
