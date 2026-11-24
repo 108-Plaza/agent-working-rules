@@ -254,6 +254,11 @@ Without a design, every worker writes by its own principles and the code fills w
 
 Size is no reason to skip design: the cost is in designing and reviewing, not typing, and a wrong design is copied just as fast.
 
+**Language for a new service:** choose the language that catches an AI agent's mistakes before production.
+- **Default for APIs and backends: a strongly typed compiled language with sum types and no null, such as Rust.** The compiler verifies AI-written code, enums with data plus exhaustive matching give the seams, and newtypes stop wrong IDs or amounts.
+- Use another language only where it is clearly better: TypeScript for a BFF next to a web front end, a mobile framework for apps, Python where the ML library lives.
+- Pay the compile-time cost with small packages, change-scoped tests and caching, not by switching language.
+
 **Process by work type** (the ticket names its type; review checks that row):
 
 | Type | Diagram | Seam | Rule |
