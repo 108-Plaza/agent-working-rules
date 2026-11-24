@@ -237,50 +237,53 @@ If one could need a change the other must not get, they only look alike today. S
 
 Where this came from: a phone-automation bot had a recorded "login" flow and needed a "transfer" flow. Each time a flow was added, the agent derived it from the login flow. First it proposed cutting the login's closing steps so the app would stay open for the transfer. Then it proposed a login copy that ends in a transfer. Both were wrong. The login job ends with the phone locked, a transfer is never run straight after a login, and the transfer's first steps expect the home screen. The start and end states differed, the two rows of the table nobody filled in. What the flows really share is the layer below them: the recorded buttons, the popups list and the unlock step.
 
-### 🧱 Design before code: survey, UML, one core, named patterns
+### 🧱 Design before code: the lead agent designs, workers build to it, review checks it
 
-The lead agent (the controller or design author) owns the design; workers build exactly what it designed and review checks against it.
-Without a design, every worker writes by its own principles and the code fills with copies. AI agents are capable and do their best work
-when the task has a clear structure and a known pattern, so the design is that structure.
+The lead agent (the controller or design author) owns the design: the survey, the diagrams, each seam and its pattern, every helper and where it lives.
+Workers build exactly that, writing each function the smallest complete way (reuse existing code, then the standard library, then an installed dependency, then new code).
+When the design does not fit the code, a worker comments on the ticket and stops. Review checks the work against the design.
+Without a design, every worker writes by its own principles and the code fills with copies. AI agents are capable and do their best work with a clear structure and a known pattern.
 
-**The process:** survey → model in UML → pick a shape and a pattern for each set of variants → one core, one seam → keep it simple → hand off and review.
+**Re-read classic advice for AI workers.** Much design advice exists to save human hours. Keep the part about the code; drop the part about the labour:
+- "refactor later" ⇒ **migrate now**, as a parallel wave of per-file tickets released when the helper lands;
+- "rule of three" ⇒ **extract at the second copy** (still no abstraction for a single case);
+- "diagrams rot" ⇒ **diagram every design** and check it against the code on each change;
+- "test the important paths" ⇒ **one test per behaviour row**, each able to go red;
+- "avoid big refactors" ⇒ **do them** as small parallel PRs;
+- small PRs, YAGNI, single responsibility, clear names, invalid states unrepresentable ⇒ **unchanged**.
 
-1. **Survey, counted.** Search the concept under several names. Write down how many places already do it, with `file:line`.
-   Never add copy N+1: reuse it (if its contract matches, § 🔍), or add one helper for your new code and ticket the old copies.
-2. **Model in UML, adapted to the language.** Draw Mermaid inside the design doc. A class diagram is always required. Add a sequence diagram for flows that cross layers, a state diagram for statuses, and a component diagram for new dependencies.
-   - Rust has no classes or inheritance. Draw structs, `<<trait>>`, `<<enumeration>>` and `<<module>>`/`<<rule>>`. Realisation (`<|..`) is the only "is-a".
-   - Show ownership with composition or aggregation. Put a note with **the file** on every element.
-   - **The diagram must match the code:** draw existing code from the code. Change the diagram before the code differs from it, and review checks it.
-   - Mermaid is plain text every agent reads exactly, so one diagram gives every implementer the same names, signatures and files.
-3. **Pick the shape by the kind of set:**
-   - a **closed set** fixed by the domain (a service kind, a status) ⇒ an enum, with each per-variant table written once;
-   - **interchangeable outside engines** ⇒ trait + real impl + `Fake` (♻️);
-   - **admin-added things** ⇒ rows and an API.
+Size is no reason to skip design: the cost is in designing and reviewing, not typing, and a wrong design is copied just as fast.
 
-   Then **name the pattern** of each seam in the diagram and the PR:
-   - Strategy/Adapter for engines;
-   - Registry/Factory for choosing an implementation by key;
-   - Template method for one flow with a few differing steps;
-   - a table-driven enum for per-variant values;
-   - Policy/Specification for a pure decision;
-   - a state machine for transitions;
-   - Repository, Unit of work, Observer (side effects after commit) and Facade.
-4. **Flows that behave alike share one core.** List every difference and mark each one as a value, a yes/no, or a real algorithm.
-   - Values and yes/no answers are methods on the seam, not branches at call sites.
-   - Algorithms are one function per variant behind the seam.
-   - A new variant is one entry in the seam.
-5. **Keep it simple:**
-   - a pattern only when a second user exists today;
-   - one pattern per seam;
-   - no forwarding layers;
-   - nothing kept "in case".
-6. **Hand off and review.**
-   - The design doc holds the survey, the UML, the variant table and the seam.
-   - Every work order tells the worker to follow it.
-   - The PR carries a `Reuse:` section (§ 🔍) plus the survey numbers.
-   - A reviewer fails any of these: a new copy of existing logic, a variant branch outside its seam, a decision outside the rule layer, the wrong shape, an unnamed pattern, a drifted diagram, or a single-user abstraction.
+**Process by work type** (the ticket names its type; review checks that row):
 
-Where this came from: one codebase had 14 inline row-lock reads of the same entity, 9 copies of one status list, and 88 branches on a two-value service kind across 37 files, though both services ran the same flow. A one-line fix was about to add the fifteenth lock copy.
+| Type | Diagram | Seam | Rule |
+|---|---|---|---|
+| Hotfix | no | none new | smallest root-cause fix + a test that fails first; the cleanup wave is dispatched right after it merges |
+| Bug fix | only for a shared new type | existing seam only | one helper allowed if the fix would add a copy |
+| Feature | class (+ sequence across layers) | yes | design reviewed before tickets are released |
+| New variant | update the existing one | one entry in the seam | needing edits everywhere means the seam is missing |
+| Refactor | before and after | yes | no behaviour change; split by file |
+| UI | component diagram for a shared component | one data-driven component | no screen per app per variant |
+| Migration | state diagram for new statuses | — | data-migration section and human approval |
+| Spike | no | no | never merged |
+
+**The design:**
+1. **Survey, reproducible.** Search under several names. Record each count with its command and commit: a count nobody can re-run is not evidence. Never add copy N+1.
+2. **UML in Mermaid, adapted to the language.** Draw what the code is: struct/class, trait/interface, enum/sealed class/discriminated union, a module of pure functions, and realisation as the only "is-a". Show ownership and the file of each public element. Draw existing code from the code. Each block must render.
+3. **Shape:** a closed set fixed by the domain ⇒ an enum, with each per-variant answer written once (never a trait object over it); interchangeable outside engines ⇒ trait + real impl + `Fake`; admin-added things ⇒ rows and an API. Make invalid states unrepresentable: newtypes, enums over bool flags.
+4. **Name each seam's pattern:** Strategy/Adapter, Registry, Template method, table-driven enum, Policy, State machine, Repository, Unit of work, after-commit effects, Facade. A Factory with one implementation is a smell.
+5. **One core, one seam** for flows that behave alike. List every difference as a value, a yes/no or a real algorithm; values and yes/no become methods on the seam.
+6. **Also in the design:** alternatives considered and why they were rejected; the error type at each seam (no stringly errors); the test seams and up-front failing tests.
+7. **Keep it simple:** reuse only what keeps the same contract (§ 🔍); a pattern only when a second user exists today; no forwarding layers; `shortcut: <limit>, upgrade when <condition>` for a deliberate limit.
+
+**Hand-off and review.** Tickets carry the work type, seam, pattern, helpers and reuse decision. The PR carries a `Reuse:` section: the § 🔍 table, or `Reuse: none — searched <terms> in <paths> @ <commit>`.
+Review in two stages:
+1. Does the PR match the design? Check the work-type row, the diagram, the `Reuse:` section and reproducible counts.
+2. Quality. It fails on any of these: a new copy, a variant branch outside its seam, a trait object over a closed set, a decision outside the rule layer, an unnamed pattern, a forwarding wrapper, or a string error across a seam.
+
+**A living rule.** Rules about the code stay. Rules that exist because of today's AI limits (workers don't design, every seam spelled out, review on every PR) are re-checked whenever the models change: run past failure cases without the rule, and loosen it if the new model gets them right.
+
+Where this came from: one codebase had two services running the same flow with 77 branches on the service kind across 37 files, two diverging transition tables for one entity, and a lock query copied across a module. A one-line fix was about to add another copy.
 
 ### 🦀 Rust: let the compiler catch the mistake, not shorter code
 
