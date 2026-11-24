@@ -197,6 +197,7 @@ notification channels, hardware drivers, recognition engines, storage backends, 
   the variants are not actually alike.
 - ⚠️ **Not a licence to abstract a single case.** One variant with no second in sight stays concrete; this rule fires when the
   second arrives or is already planned.
+- 🔴 **This is for interchangeable implementations.** A closed set fixed by the domain (a service kind, a status) is an **enum with one table**, not a trait object (§ 🧱).
 
 Where this came from: a service whose storage layer was already generic over the provider, while its HTTP layer had been copied
 once per provider — sixteen handlers and four request/response types for two providers, and nothing for the next two. The third
@@ -235,6 +236,51 @@ If one could need a change the other must not get, they only look alike today. S
 - **The implementer** puts a `Reuse:` section in any PR that reuses something in a new place. It names what is reused and gives the table, or one line per row that could differ.
 
 Where this came from: a phone-automation bot had a recorded "login" flow and needed a "transfer" flow. Each time a flow was added, the agent derived it from the login flow. First it proposed cutting the login's closing steps so the app would stay open for the transfer. Then it proposed a login copy that ends in a transfer. Both were wrong. The login job ends with the phone locked, a transfer is never run straight after a login, and the transfer's first steps expect the home screen. The start and end states differed, the two rows of the table nobody filled in. What the flows really share is the layer below them: the recorded buttons, the popups list and the unlock step.
+
+### 🧱 Design before code: survey, UML, one core, named patterns
+
+The lead agent (the controller or design author) owns the design; workers build exactly what it designed and review checks against it.
+Without a design, every worker writes by its own principles and the code fills with copies. AI agents are capable and do their best work
+when the task has a clear structure and a known pattern, so the design is that structure.
+
+**The process:** survey → model in UML → pick a shape and a pattern for each set of variants → one core, one seam → keep it simple → hand off and review.
+
+1. **Survey, counted.** Search the concept under several names. Write down how many places already do it, with `file:line`.
+   Never add copy N+1: reuse it (if its contract matches, § 🔍), or add one helper for your new code and ticket the old copies.
+2. **Model in UML, adapted to the language.** Draw Mermaid inside the design doc. A class diagram is always required. Add a sequence diagram for flows that cross layers, a state diagram for statuses, and a component diagram for new dependencies.
+   - Rust has no classes or inheritance. Draw structs, `<<trait>>`, `<<enumeration>>` and `<<module>>`/`<<rule>>`. Realisation (`<|..`) is the only "is-a".
+   - Show ownership with composition or aggregation. Put a note with **the file** on every element.
+   - **The diagram must match the code:** draw existing code from the code. Change the diagram before the code differs from it, and review checks it.
+   - Mermaid is plain text every agent reads exactly, so one diagram gives every implementer the same names, signatures and files.
+3. **Pick the shape by the kind of set:**
+   - a **closed set** fixed by the domain (a service kind, a status) ⇒ an enum, with each per-variant table written once;
+   - **interchangeable outside engines** ⇒ trait + real impl + `Fake` (♻️);
+   - **admin-added things** ⇒ rows and an API.
+
+   Then **name the pattern** of each seam in the diagram and the PR:
+   - Strategy/Adapter for engines;
+   - Registry/Factory for choosing an implementation by key;
+   - Template method for one flow with a few differing steps;
+   - a table-driven enum for per-variant values;
+   - Policy/Specification for a pure decision;
+   - a state machine for transitions;
+   - Repository, Unit of work, Observer (side effects after commit) and Facade.
+4. **Flows that behave alike share one core.** List every difference and mark each one as a value, a yes/no, or a real algorithm.
+   - Values and yes/no answers are methods on the seam, not branches at call sites.
+   - Algorithms are one function per variant behind the seam.
+   - A new variant is one entry in the seam.
+5. **Keep it simple:**
+   - a pattern only when a second user exists today;
+   - one pattern per seam;
+   - no forwarding layers;
+   - nothing kept "in case".
+6. **Hand off and review.**
+   - The design doc holds the survey, the UML, the variant table and the seam.
+   - Every work order tells the worker to follow it.
+   - The PR carries a `Reuse:` section (§ 🔍) plus the survey numbers.
+   - A reviewer fails any of these: a new copy of existing logic, a variant branch outside its seam, a decision outside the rule layer, the wrong shape, an unnamed pattern, a drifted diagram, or a single-user abstraction.
+
+Where this came from: one codebase had 14 inline row-lock reads of the same entity, 9 copies of one status list, and 88 branches on a two-value service kind across 37 files, though both services ran the same flow. A one-line fix was about to add the fifteenth lock copy.
 
 ### 🦀 Rust: let the compiler catch the mistake, not shorter code
 
