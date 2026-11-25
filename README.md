@@ -237,6 +237,20 @@ If one could need a change the other must not get, they only look alike today. S
 
 Where this came from: a phone-automation bot had a recorded "login" flow and needed a "transfer" flow. Each time a flow was added, the agent derived it from the login flow. First it proposed cutting the login's closing steps so the app would stay open for the transfer. Then it proposed a login copy that ends in a transfer. Both were wrong. The login job ends with the phone locked, a transfer is never run straight after a login, and the transfer's first steps expect the home screen. The start and end states differed, the two rows of the table nobody filled in. What the flows really share is the layer below them: the recorded buttons, the popups list and the unlock step.
 
+### 🌐 One standard, and it is the international one
+
+Every house standard names the international standard it implements and differs only where it says why; a new house-only shape where a published standard settles the question fails review.
+The adopted set:
+- RFC 9110 status codes, and errors mapped 1:1 onto RFC 9457 Problem Details;
+- W3C Trace Context;
+- OpenTelemetry log field names, with the error's reason token identical on screen, in the client and in the log line;
+- OpenAPI 3.1 generated from the writer's code;
+- OWASP ASVS 5.0 level 2 and the API Security Top 10 in every review;
+- WCAG 2.2 AA;
+- ISO/IEC 25010 quality targets measured as SLOs with error budgets and DORA metrics.
+
+"Easy to maintain" means an agent can go from a symptom to its cause on its own, and a person's part is one decision or one approval.
+
 ### 🧱 Design before code: the lead agent designs, workers build to it, review checks it
 
 The lead agent (the controller or design author) owns the design: the survey, the diagrams, each seam and its pattern, every helper and where it lives.
