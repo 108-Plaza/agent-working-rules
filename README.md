@@ -634,7 +634,7 @@ Owner's order *"set one central standard for how services talk and connect"* (tr
   1. add the new field;
   2. move readers to the new field;
   3. drop the old field.
-- **A breach is a review FAIL**, never a PASS with a follow-up. A transition PR that follows the three steps above may keep the old field for a while. It must name its step and the ticket that drops the old field.
+- **A breach is a review FAIL**, never a PASS with a follow-up. A transition PR may keep the old shape for a while, either by keeping the old field beside the envelope or, where an added field would change what an old one means, by serving the envelope only to readers that opt in with a request header. Either way it must name its step and the ticket that ends the old shape.
 - **Why:** a relay built from a ticket comment rebuilt the answer it should have passed through. The first live end-to-end test failed at that hop, and five different envelopes turned up in one call chain.
 
 ## 11. When two pieces of work conflict
