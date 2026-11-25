@@ -617,6 +617,26 @@ An identity mid-paragraph does not count · never use a bare kind name; always i
 
 ---
 
+### 🔌 Every wire between services follows one written connection standard
+
+Owner's order *"set one central standard for how services talk and connect"* (translated). It came after services had each invented their own answer shape.
+- **Keep one standard document, and point every service at it.** It covers the answer envelope, channels, who owns a shape, and contract tests.
+- **One envelope for every HTTP answer**, e.g. `{code, message, data}`.
+  - Every refusal carries a machine-readable reason, e.g. `data.reason`.
+  - Programs branch on the code and the reason only, never on human-readable text.
+- **One channel per hop.** A relay passes the answer through unchanged. It never reads, re-parses or rebuilds it.
+- **The writer owns the shape.** A reader builds from the writer's code, cited by `file:line`, never from a ticket comment that describes it.
+- **Contract fixtures.**
+  - The writer publishes example bodies.
+  - The reader's tests load a copy of them.
+  - CI fails when the copy drifts from the writer's original.
+- **Client-facing APIs move too, one lane at a time,** server and apps in the same release:
+  1. add the new field;
+  2. move readers to the new field;
+  3. drop the old field.
+- **A breach is a review FAIL**, never a PASS with a follow-up.
+- **Why:** a relay built from a ticket comment rebuilt the answer it should have passed through. The first live end-to-end test failed at that hop, and five different envelopes turned up in one call chain.
+
 ## 11. When two pieces of work conflict
 
 | Kind | What it looks like | The root-cause question to ask |
