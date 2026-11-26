@@ -735,6 +735,16 @@ A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** a
 (1) no file **at any depth** was modified within the time threshold (2) no process has a file **inside** open
 — checking only the top level, or only the directory itself, deletes the build output of work that is currently running (both have happened).
 
+**Merged or closed ⇒ whoever merges or closes it removes the worktrees.** The implementer must keep its worktree while the PR is open (a failed review sends it back),
+and the merge happens later in another session, often on another machine ⇒ unless the merge step owns the cleanup, nobody does, and worktrees pile up by the hundred.
+Never remove one a process is inside, or one with uncommitted changes or commits that are not on the remote.
+
+The sweeper covers worktrees and scratch clones too, as a backstop. It removes one only when **all** hold:
+no process inside it · nothing outside the git metadata changed within the threshold · the working tree is clean ·
+every commit is on the remote, or its PR is merged or closed and that PR's head contains the local commit (an open PR ⇒ kept) ·
+it is not locked or on a keep list · for a clone, also no stash, no live linked worktree, and every local branch safe.
+It never removes unmerged work by age alone, and it logs the reason for every folder it keeps, so "why is this still here" always has an answer.
+
 ### Handing work across rounds
 
 When you are near full, or before a large piece of work, record into a context file: what the task is · the branch and its state ·
