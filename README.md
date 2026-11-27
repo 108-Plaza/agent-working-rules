@@ -424,7 +424,7 @@ Every step a session takes (each tool call, each wake-up) re-reads the whole con
   - calls made above 400k tokens of context were half of all cost, while a fresh session starts near 50k.
 
   Checking state (notifications, implementer screens, PR status) cost more than the work itself.
-- **Cap the context.** Set `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (e.g. `300000`) in the agent's settings, so sessions compact long before the model's full window. Keep the lane state where a compaction cannot lose it: the umbrella ticket or the context file. Record tickets in flight, watchers and open rulings there. A compaction must never be the only copy of a ruling.
+- **Cap the context.** Set `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (e.g. `300000`) in the agent's settings, so sessions compact long before the model's full window. Keep the stream's state where a compaction cannot lose it: the umbrella ticket or the context file. Record tickets in flight, watchers and open rulings there. A compaction must never be the only copy of a ruling.
 - **One check, one call.** A survey round is one script that reads every implementer, the queue and the open PRs, and prints only what changed since the last round. Never make one tool call per implementer or per PR.
 - **Wake only on change.** A watcher waits; the controller does not poll to "see if anything happened". A wake-up that finds nothing new ends in one line.
 - **Hand bulk reading to a cheap helper model** that returns a short answer. The decision stays with the controller, and review stays on the review model.
