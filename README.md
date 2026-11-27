@@ -414,6 +414,21 @@ which asking again does not help; it only fills the log with requests that achie
   - **Watchers outlive the session that started them**, because they run on the machine. One missing from the handoff means two controllers sending to the same implementer.
   - **Why:** one day after an account ran out of quota, two controllers released the same six tickets within minutes. Then four takeover messages came from out-of-quota sessions in 90 minutes, each contradicting the owner's latest answer in the controller's session.
 
+### 💸 A controller session stays short and checks in batches
+
+Every step a session takes (each tool call, each wake-up) re-reads the whole conversation so far. So what a step costs grows with how long the session already is, not with how hard the step is.
+
+- **Measured over one week of session logs:**
+  - about three quarters of the cost was re-reading context;
+  - four controller sessions left open for ~80 hours used 60% of the week;
+  - calls made above 400k tokens of context were half of all cost, while a fresh session starts near 50k.
+
+  Checking state (notifications, implementer screens, PR status) cost more than the work itself.
+- **Cap the context.** Set `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (e.g. `300000`) in the agent's settings, so sessions compact long before the model's full window. Keep the stream's state where a compaction cannot lose it: the umbrella ticket or the context file. Record tickets in flight, watchers and open rulings there. A compaction must never be the only copy of a ruling.
+- **One check, one call.** A survey round is one script that reads every implementer, the queue and the open PRs, and prints only what changed since the last round. Never make one tool call per implementer or per PR.
+- **Wake only on change.** A watcher waits; the controller does not poll to "see if anything happened". A wake-up that finds nothing new ends in one line.
+- **Hand bulk reading to a cheap helper model** that returns a short answer. The decision stays with the controller, and review stays on the review model.
+
 ---
 
 ## 6. The standard task order — no skipped steps, no reordering
