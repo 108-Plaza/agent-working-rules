@@ -755,11 +755,17 @@ A rule on its own gets forgotten ⇒ there must also be a **periodic sweeper** a
 **Merged or closed ⇒ whoever merges or closes it removes the worktrees.** The implementer must keep its worktree while the PR is open (a failed review sends it back),
 and the merge happens later in another session, often on another machine ⇒ unless the merge step owns the cleanup, nobody does, and worktrees pile up by the hundred.
 Never remove one a process is inside, or one with uncommitted changes or commits that are not on the remote.
+Nor one that holds a **gitignored secret**: `git status` never reports ignored files, so a worktree whose only copy of a secret
+(a device config, a key file, an `.env`) is gitignored looks clean and is deleted whole — this has happened, and the only copy of a flashed device's config was lost.
+The cleanup command must list ignored files outside build caches and keep the worktree when one looks like a secret,
+with an explicit per-file override for a throwaway secret or after checking that a byte-identical copy exists outside.
+🔴 **A secret's only copy never lives inside a worktree** — keep it in a per-user config folder outside every checkout (owner-only permissions) and copy it in.
 
 The sweeper covers worktrees and scratch clones too, as a backstop. It removes one only when **all** hold:
 no process inside it · nothing outside the git metadata changed within the threshold · the working tree is clean ·
 every commit is on the remote, or its PR is merged or closed and that PR's head contains the local commit (an open PR ⇒ kept) ·
-it is not locked or on a keep list · for a clone, also no stash, no live linked worktree, and every local branch safe.
+it is not locked or on a keep list · no gitignored file outside build caches looks like a secret ·
+for a clone, also no stash, no live linked worktree, and every local branch safe.
 It never removes unmerged work by age alone, and it logs the reason for every folder it keeps, so "why is this still here" always has an answer.
 
 ### Handing work across rounds
