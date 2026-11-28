@@ -427,7 +427,9 @@ Every step a session takes (each tool call, each wake-up) re-reads the whole con
 - **Cap the context.** Set `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (e.g. `300000`) in the agent's settings, so sessions compact long before the model's full window. Keep the stream's state where a compaction cannot lose it: the umbrella ticket or the context file. Record tickets in flight, watchers and open rulings there. A compaction must never be the only copy of a ruling.
 - **One check, one call.** A survey round is one script that reads every implementer, the queue and the open PRs, and prints only what changed since the last round. Never make one tool call per implementer or per PR.
 - **Wake only on change.** A watcher waits; the controller does not poll to "see if anything happened". A wake-up that finds nothing new ends in one line.
-- **Hand bulk reading to a cheap helper model** that returns a short answer. The decision stays with the controller, and review stays on the review model.
+- **Hand bulk reading and drafting to a cheaper helper model, and say so by name when spawning it.** Read-only surveys (code, logs, implementer screens, PR lists) and drafts the controller checks before posting (tickets, docs) go to the cheaper model. Review, writing code, and any ruling the session acts on unchecked stay on the strongest model. Unsure ⇒ the strongest.
+  - **Why:** capping the context cut the cost of each call by ~40%, yet the day's total fell only 8%. Helpers had been spawned on the strongest model by default, tripled in number, and took a third of the day. A survey answer or a draft is checked by the controller before anything acts on it, so a cheaper reader there loses no safety; a verdict or a code change is not re-checked.
+  - If one rule says "cheap helper" and another says "every helper uses the strongest model", sessions follow the stricter one. Keep the two rules consistent.
 
 ---
 
